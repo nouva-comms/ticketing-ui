@@ -47,8 +47,13 @@ const Navbar = () => {
           transition: "padding .4s cubic-bezier(.16,1,.3,1)",
         }}
       >
-        <Box component={RouterLink} to="/" sx={{ textDecoration: "none" }}>
-          <Logo onDark />
+        <Box component={RouterLink} to="/" sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            component="img"
+            src="/images/logoWhite.png"
+            alt="Nouva Running"
+            sx={{ height: 36, width: "auto", display: "block" }}
+          />
         </Box>
 
         <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 4 }}>

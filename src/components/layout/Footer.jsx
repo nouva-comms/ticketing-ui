@@ -22,7 +22,12 @@ const Footer = () => {
           }}
         >
           <Box sx={{ maxWidth: 260 }}>
-            <Logo onDark />
+            <Box
+              component="img"
+              src="/images/logoWhite.png"
+              alt="Nouva Running"
+              sx={{ height: 36, width: "auto", display: "block" }}
+            />
             <Typography sx={{ color: "rgba(255,255,255,.5)", fontSize: 13, lineHeight: 1.6, mt: 2 }}>
               Platform pendaftaran event lari menghubungkan pelari dan penyelenggara di seluruh Indonesia.
             </Typography>
