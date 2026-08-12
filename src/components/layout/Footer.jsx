@@ -21,6 +21,7 @@ const Footer = () => {
             borderBottom: "1px solid rgba(255,255,255,.1)",
           }}
         >
+{/* Test */}
           <Box sx={{ maxWidth: 260 }}>
             <Box
               component="img"
