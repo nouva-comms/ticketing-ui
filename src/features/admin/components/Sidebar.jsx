@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Box,
@@ -34,6 +34,7 @@ import {
 
 import UiButtonIcon from "../../../components/ui/UiButtonIcon";
 import UiBaseIcon from "../../../components/ui/UiBaseIcon";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const SIDEBAR_WIDTH = 250;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
@@ -62,6 +63,21 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
    */
 
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Sinkronkan menu aktif & submenu terbuka sesuai URL saat ini
+  useEffect(() => {
+    if (location.pathname === "/admin") {
+      setActiveMenu("dashboard");
+    } else if (location.pathname === "/admin/events/create") {
+      setActiveMenu("buat-event");
+      setOpenMenus((prev) => ({ ...prev, event: true }));
+    } else if (location.pathname.startsWith("/admin/events")) {
+      setActiveMenu("semua-event");
+      setOpenMenus((prev) => ({ ...prev, event: true }));
+    }
+  }, [location.pathname]);
 
   /*
    * ============================================================
@@ -78,6 +94,8 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
       icon: <LayoutDashboard size={18} />,
 
       type: "single",
+
+      path: "/admin",
     },
 
     {
@@ -94,6 +112,8 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
           id: "semua-event",
 
           label: "Semua Event",
+
+          path: "/admin/events",
         },
 
         {
@@ -102,6 +122,8 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
           label: "Buat Event",
 
           icon: <Plus size={15} />,
+
+          path: "/admin/events/create",
         },
       ],
     },
@@ -299,13 +321,12 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
    * ============================================================
    */
 
-  const handleMenuClick = (menuId) => {
-    setActiveMenu(menuId);
+  const handleMenuClick = (menu) => {
+    setActiveMenu(menu.id);
 
-    /*
-     * Nanti ketika react-router-dom sudah dipasang,
-     * navigasi bisa dilakukan di sini.
-     */
+    if (menu.path) {
+      navigate(menu.path);
+    }
   };
 
   /*
@@ -502,7 +523,7 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
                   <ListItemButton
                     key={menu.id}
                     selected={isActive}
-                    onClick={() => handleMenuClick(menu.id)}
+                    onClick={() => handleMenuClick(menu)}
                     sx={{
                       minHeight: 40,
 
@@ -694,7 +715,7 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
                             <ListItemButton
                               key={child.id}
                               selected={childActive}
-                              onClick={() => handleMenuClick(child.id)}
+                              onClick={() => handleMenuClick(child)}
                               sx={{
                                 minHeight: 34,
 

@@ -3,7 +3,7 @@ import { Calendar, MapPin, ImageOff } from "lucide-react";
 
 const fmtIDR = (n) => "Rp " + n.toLocaleString("id-ID");
 
-const EventCard = ({ event, onRegister }) => {
+const EventCard = ({ event, onRegister, actionLabel = "Daftar", onAction  }) => {
   return (
     <Box
       sx={{
@@ -44,20 +44,22 @@ const EventCard = ({ event, onRegister }) => {
           </Box>
         )}
 
-        <Chip
-          label={event.cats.join(" / ")}
-          size="small"
-          sx={{
-            position: "absolute",
-            top: 12,
-            left: 12,
-            bgcolor: "#fff",
-            color: "primary.main",
-            fontWeight: 700,
-            fontSize: 10,
-            letterSpacing: "0.04em",
-          }}
-        />
+        {event.cats && event.cats.length > 0 && (
+          <Chip
+            label={event.cats.join(" / ")}
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 12,
+              left: 12,
+              bgcolor: "#fff",
+              color: "primary.main",
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: "0.04em",
+            }}
+          />
+        )}
       </Box>
 
       <Box sx={{ p: 2.2, display: "flex", flexDirection: "column", gap: 0.8, flex: 1 }}>
@@ -67,13 +69,13 @@ const EventCard = ({ event, onRegister }) => {
           <Calendar size={14} /> {event.date}
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", fontSize: 13 }}>
-          <MapPin size={14} /> {event.venue}, {event.city}
+          <MapPin size={14} /> {[event.venue, event.city].filter(Boolean).join(", ")}
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: "auto", pt: 1.8 }}>
           <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{fmtIDR(event.price)}</Typography>
           <Button
-            onClick={() => onRegister?.(event)}
+            onClick={() => (onAction ? onAction(event) : onRegister?.(event))}
             variant="contained"
             sx={{
               borderRadius: 100,
@@ -84,7 +86,7 @@ const EventCard = ({ event, onRegister }) => {
               "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
             }}
           >
-            Daftar
+            {actionLabel}
           </Button>
         </Box>
       </Box>
