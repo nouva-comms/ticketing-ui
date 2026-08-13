@@ -24,6 +24,7 @@ import {
 
 import { useState } from "react";
 
+import { useNavigate } from "react-router-dom";
 import UiButtonIcon from "../../../components/ui/UiButtonIcon";
 import UiBaseIcon from "../../../components/ui/UiBaseIcon";
 
@@ -32,6 +33,7 @@ const SIDEBAR_COLLAPSED_WIDTH = 72;
 const NAVBAR_HEIGHT = 68;
 
 const Navbar = ({ sidebarOpen = true, onMobileMenuClick }) => {
+  const navigate = useNavigate();
   const [profileAnchor, setProfileAnchor] = useState(null);
 
   const profileMenuOpen = Boolean(profileAnchor);
@@ -59,7 +61,7 @@ const Navbar = ({ sidebarOpen = true, onMobileMenuClick }) => {
   const handleLogout = () => {
     handleCloseProfile();
 
-    console.log("Logout");
+    navigate("/");
 
     /*
      * Nanti implementasi logout:
