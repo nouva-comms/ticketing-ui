@@ -1,58 +1,69 @@
-import UiFormGroup from "../../../components/ui/UiFormGroup";
-import {
-  Box,
-  Typography,
-  Stack,
-} from "@mui/material";
-import { UserRound } from "lucide-react";
-import UiBaseIcon from "../../../components/ui/UiBaseIcon";
-import UiButtonIcon from "../../../components/ui/UiButtonIcon";
+import { useState } from "react";
+import { Box } from "@mui/material";
+import TicketBuyerForm from "./TicketBuyerForm";
+import TicketDetailSection from "./TicketDetailSection";
 
-const TicketForm = () => {
-  const Field = ({ label, placeholder, required = true }) => (
-    <UiFormGroup placeholder={placeholder}>
-      <Stack direction="row" alignItems="center">
-        <Typography>{label}</Typography>
-        {required && <Typography color="error">*</Typography>}
-      </Stack>
-    </UiFormGroup>
+const emptyBuyer = {
+  name: "",
+  identityType: "",
+  identityNumber: "",
+  email: "",
+  whatsapp: "",
+};
+
+const emptyTicket = {
+  synced: false,
+  name: "",
+  identityType: "",
+  identityNumber: "",
+  email: "",
+  gender: "",
+  whatsapp: "",
+  age: "",
+  address: "",
+  city: "",
+  province: "",
+};
+
+const TicketForm = ({ items = [{ label: "CHILD - TICKETS ARTJOG", qty: 1 }], onStateChange }) => {
+  const [buyer, setBuyer] = useState(emptyBuyer);
+
+  const ticketSlots = items.flatMap((item, itemIndex) =>
+    Array.from({ length: item.qty }, (_, i) => ({
+      key: `${itemIndex}-${i}`,
+      label: item.label || item.name,
+    }))
   );
 
-  const Section = ({ number, title, fields = [] }) => (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-        <UiButtonIcon bordered={true} size="small">
-          {number}
-        </UiButtonIcon>
-        <Typography sx={{ fontWeight: 600 }}>{title}</Typography>
-      </Box>
-      {fields.map((f) => (
-        <Field key={f.placeholder} {...f} />
-      ))}
-    </Box>
+  const [tickets, setTickets] = useState(() =>
+    ticketSlots.map(() => ({ ...emptyTicket }))
   );
 
-  const sectionOneFields = [
-    { label: "Nama Lengkap", placeholder: "Nama lengkap" },
-    { label: "Nomor Identitas", placeholder: "Nomor Identitas" },
-    { label: "Email", placeholder: "Email" },
-    { label: "Nomor Telepon", placeholder: "Nomor Telepon" },
-  ];
+  const updateBuyer = (next) => {
+    setBuyer(next);
+    onStateChange?.({ buyer: next, tickets });
+  };
 
-  const sectionTwoFields = [
-    { label: "Usia", placeholder: "Usia" },
-    { label: "Domisili Kota", placeholder: "Domisili Kota" },
-    { label: "Gol. Darah", placeholder: "Golongan Darah" },
-    { label: "Penyakit Bawaan", placeholder: "Penyakit Bawaan" },
-    { label: "Nomor Darurat", placeholder: "Nomor Darurat" },
-    { label: "Nama BIB", placeholder: "Nama BIB" },
-    { label: "Alamat Lengkap", placeholder: "Alamat Lengkap" },
-  ];
+  const updateTicket = (i, next) => {
+    const updated = tickets.map((t, idx) => (idx === i ? next : t));
+    setTickets(updated);
+    onStateChange?.({ buyer, tickets: updated });
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Section number={1} title="Data Pemesan" fields={sectionOneFields} />
-      <Section number={2} title="Detail Tiket" fields={sectionTwoFields} />
+      <TicketBuyerForm value={buyer} onChange={updateBuyer} />
+
+      {ticketSlots.map((slot, i) => (
+        <TicketDetailSection
+          key={slot.key}
+          index={i + 1}
+          categoryLabel={slot.label}
+          value={tickets[i]}
+          onChange={(next) => updateTicket(i, next)}
+          buyerData={buyer}
+        />
+      ))}
     </Box>
   );
 };
