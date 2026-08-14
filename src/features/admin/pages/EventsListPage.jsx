@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Box, Typography, Button } from "@mui/material";
-import { Plus } from "lucide-react";
+import { Box, Typography, Button, IconButton } from "@mui/material";
+import { Plus, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import EventCard from "../../dashboard/components/EventCard";
@@ -86,12 +86,33 @@ const EventsListPage = () => {
             }}
           >
             {events.map((ev) => (
-              <EventCard
-                key={ev.id}
-                event={ev}
-                actionLabel="Detail"
-                onAction={(e) => navigate(`/admin/events/${e.id}`)}
-              />
+              <Box key={ev.id} sx={{ position: "relative" }}>
+                <IconButton
+                  onClick={() => navigate(`/admin/events/${ev.id}`)}
+                  title="Edit Event"
+                  sx={{
+                    position: "absolute",
+                    top: 12,
+                    left: 12,
+                    zIndex: 2,
+                    width: 30,
+                    height: 30,
+                    bgcolor: "#fff",
+                    border: "1px solid",
+                    borderColor: "border.main",
+                    boxShadow: "0 2px 6px rgba(0,0,0,.12)",
+                    "&:hover": { bgcolor: "primary.background" },
+                  }}
+                >
+                  <Pencil size={14} />
+                </IconButton>
+
+                <EventCard
+                  event={ev}
+                  actionLabel="Partisipan"
+                  onAction={(e) => navigate(`/admin/events/${e.id}/participants`)}
+                />
+              </Box>
             ))}
           </Box>
         )}

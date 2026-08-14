@@ -13,7 +13,7 @@ const DashboardPage = () => {
   // Klik "Daftar" di kartu event -> lempar ke form pendaftaran tiket,
   // sambil bawa id event-nya lewat state router.
   const handleRegister = (event) => {
-    navigate("/tickets/create", { state: { eventId: event.id } });
+    navigate(`/events/${event.id}`);
   };
 
   return (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import TicketStepper from "../components/TicketStepper";
 import TicketHeader from "../components/TicketHeader";
@@ -10,12 +11,19 @@ import UiSummaryCard from "../../../components/ui/UiSummaryCard";
 const ORDER_ITEMS = [{ name: "CHILD - TICKETS ARTJOG", qty: 1, price: 50000 }];
 
 const TicketCreatePage = () => {
+  const navigate = useNavigate();
   const [formState, setFormState] = useState(null);
 
   const total = ORDER_ITEMS.reduce((sum, it) => sum + it.price * it.qty, 0);
 
   const handleContinue = () => {
-    console.log("continue with", formState);
+    navigate("/tickets/payment-success", {
+      state: {
+        buyer: formState?.buyer,
+        items: ORDER_ITEMS,
+        total,
+      },
+    });
   };
 
   return (
