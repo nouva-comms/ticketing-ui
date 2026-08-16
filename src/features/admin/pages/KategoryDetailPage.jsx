@@ -4,7 +4,7 @@ import { ImagePlus, X, ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import DynamicPointsField from "../components/DynamicPointsField";
-import { getEventById, updateEvent } from "../utils/eventsStorage";
+import { getCategoryById, updateCategory } from "../utils/categoriesStorage";
 
 const fileToBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -25,7 +25,7 @@ const fieldSx = {
 };
 const labelSx = { fontSize: "12px", fontWeight: 500, color: "text.secondary", mb: 1 };
 
-const EventDetailPage = () => {
+const KategoryDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -45,7 +45,7 @@ const EventDetailPage = () => {
   const [facilities, setFacilities] = useState([""]);
 
   useEffect(() => {
-    const ev = getEventById(id);
+    const ev = getCategoryById(id);
     if (!ev) {
       setNotFound(true);
       return;
@@ -86,7 +86,7 @@ const EventDetailPage = () => {
 
     const imageData = image ? await fileToBase64(image) : imagePreview;
 
-    updateEvent(id, {
+    updateCategory(id, {
       name: form.name,
       date: formatDisplayDate(form.date),
       dateISO: form.date,
@@ -382,4 +382,4 @@ const EventDetailPage = () => {
   );
 };
 
-export default EventDetailPage;
+export default KategoryDetailPage;

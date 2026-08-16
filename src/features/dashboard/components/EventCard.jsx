@@ -3,9 +3,10 @@ import { Calendar, MapPin, ImageOff } from "lucide-react";
 
 const fmtIDR = (n) => "Rp " + n.toLocaleString("id-ID");
 
-const EventCard = ({ event, onRegister, actionLabel = "Daftar", onAction  }) => {
+const EventCard = ({ event, onRegister, actionLabel = "Daftar", onAction, onClick }) => {
   return (
     <Box
+      onClick={onClick}
       sx={{
         bgcolor: "#fff",
         borderRadius: 3,
@@ -15,8 +16,9 @@ const EventCard = ({ event, onRegister, actionLabel = "Daftar", onAction  }) => 
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        cursor: onClick ? "pointer" : "default",
         transition: "transform .25s, box-shadow .25s",
-        "&:hover": { transform: "translateY(-4px)", boxShadow: "0 16px 32px -20px rgba(3,47,217,.35)" },
+        "&:hover": { transform: onClick ? "translateY(-4px)" : "none", boxShadow: onClick ? "0 16px 32px -20px rgba(3,47,217,.35)" : "none" },
       }}
     >
       <Box sx={{ height: 170, position: "relative", bgcolor: "#F0F1F3" }}>
@@ -75,7 +77,14 @@ const EventCard = ({ event, onRegister, actionLabel = "Daftar", onAction  }) => 
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: "auto", pt: 1.8 }}>
           <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{fmtIDR(event.price)}</Typography>
           <Button
-            onClick={() => (onAction ? onAction(event) : onRegister?.(event))}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onAction) {
+                onAction(event);
+              } else {
+                onRegister?.(event);
+              }
+            }}
             variant="contained"
             sx={{
               borderRadius: 100,

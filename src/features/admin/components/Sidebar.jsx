@@ -70,10 +70,17 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
   useEffect(() => {
     if (location.pathname === "/admin") {
       setActiveMenu("dashboard");
-    } else if (location.pathname === "/admin/events/create") {
+      setOpenMenus((prev) => ({ ...prev, event: false }));
+    } else if (
+      location.pathname === "/admin/events/create" ||
+      location.pathname === "/admin/kategory/create"
+    ) {
       setActiveMenu("buat-event");
       setOpenMenus((prev) => ({ ...prev, event: true }));
-    } else if (location.pathname.startsWith("/admin/events")) {
+    } else if (
+      location.pathname.startsWith("/admin/events") ||
+      location.pathname.startsWith("/admin/kategory")
+    ) {
       setActiveMenu("semua-event");
       setOpenMenus((prev) => ({ ...prev, event: true }));
     }
@@ -109,22 +116,22 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
 
       children: [
         {
-          id: "semua-event",
+          id: "event",
 
-          label: "Semua Event",
+          label: "Event",
 
-          path: "/admin/events",
+          path: "/admin/events/:id/profile",
         },
 
-        {
-          id: "buat-event",
+        // {
+        //   id: "buat-event",
 
-          label: "Buat Event",
+        //   label: "Buat Event",
 
-          icon: <Plus size={15} />,
+        //   icon: <Plus size={15} />,
 
-          path: "/admin/events/create",
-        },
+        //   path: "#",
+        // },
       ],
     },
 
@@ -138,6 +145,23 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
       type: "group",
 
       children: [
+        {
+          id: "semua-category",
+
+          label: "Semua Category",
+
+          path: "/admin/kategory",
+        },
+
+        {
+          id: "buat-category",
+
+          label: "Buat Category",
+
+          icon: <Plus size={15} />,
+
+          path: "/admin/kategory/create",
+        },
         {
           id: "jenis-tiket",
 

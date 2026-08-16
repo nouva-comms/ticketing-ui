@@ -4,11 +4,11 @@ import { Plus, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import EventCard from "../../dashboard/components/EventCard";
-import { getEvents } from "../utils/eventsStorage";
+import { getCategories } from "../utils/categoriesStorage";
 
-const EventsListPage = () => {
+const KategoryListPage = () => {
   const navigate = useNavigate();
-  const [events] = useState(() => getEvents());
+  const [categories] = useState(() => getCategories());
 
   return (
     <AdminLayout>
@@ -32,10 +32,10 @@ const EventsListPage = () => {
                 color: "text.primary",
               }}
             >
-              Semua Event
+              Semua Category
             </Typography>
             <Typography sx={{ mt: 0.6, fontSize: { xs: "11px", sm: "12px" }, color: "text.secondary" }}>
-              Event yang sudah kamu buat.
+              Category yang sudah kamu buat.
             </Typography>
           </Box>
 
@@ -54,11 +54,11 @@ const EventsListPage = () => {
               "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
             }}
           >
-            Buat Event
+            Buat Category
           </Button>
         </Box>
 
-        {events.length === 0 ? (
+        {categories.length === 0 ? (
           <Box
             sx={{
               textAlign: "center",
@@ -71,10 +71,10 @@ const EventsListPage = () => {
             }}
           >
             <Typography sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
-              Belum ada event
+              Belum ada category
             </Typography>
             <Typography sx={{ fontSize: 14 }}>
-              Klik &quot;Buat Event&quot; untuk menambahkan event pertama kamu.
+              Klik &quot;Buat Category&quot; untuk menambahkan category pertama kamu.
             </Typography>
           </Box>
         ) : (
@@ -85,7 +85,7 @@ const EventsListPage = () => {
               gap: 2.5,
             }}
           >
-            {events.map((ev) => (
+            {categories.map((ev) => (
               <Box key={ev.id} sx={{ position: "relative" }}>
                 <IconButton
                   onClick={() => navigate(`/admin/events/${ev.id}`)}
@@ -111,6 +111,7 @@ const EventsListPage = () => {
                   event={ev}
                   actionLabel="Partisipan"
                   onAction={(e) => navigate(`/admin/events/${e.id}/participants`)}
+                  onClick={() => navigate(`/admin/events/${ev.id}`)}
                 />
               </Box>
             ))}
@@ -121,4 +122,4 @@ const EventsListPage = () => {
   );
 };
 
-export default EventsListPage;
+export default KategoryListPage;

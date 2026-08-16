@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import * as XLSX from "xlsx";
 import AdminLayout from "../components/AdminLayout";
-import { getEventById } from "../utils/eventsStorage";
+import { getCategoryById } from "../utils/categoriesStorage";
 import { getParticipantsByEventId } from "../data/participants";
 
 const COLUMNS = [
@@ -32,10 +32,10 @@ const exportToExcel = (rows, fileName) => {
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };
 
-const EventParticipantsPage = () => {
+const KategoryParticipantsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const event = getEventById(id);
+  const event = getCategoryById(id);
   const participants = getParticipantsByEventId(id);
 
   const fileName = event ? `partisipan-${event.name}` : "partisipan";
@@ -138,4 +138,4 @@ const EventParticipantsPage = () => {
   );
 };
 
-export default EventParticipantsPage;
+export default KategoryParticipantsPage;

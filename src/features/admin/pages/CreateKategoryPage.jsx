@@ -4,9 +4,9 @@ import { ImagePlus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import DynamicPointsField from "../components/DynamicPointsField";
-import { saveEvent } from "../utils/eventsStorage";
+import { saveCategory } from "../utils/categoriesStorage";
 
-const CreateEventPage = () => {
+const CreateKategoryPage = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -58,7 +58,7 @@ const CreateEventPage = () => {
 
     const imageData = image ? await fileToBase64(image) : null;
 
-    const newEvent = {
+    const newCategory = {
       id: Date.now(),
       name: form.name,
       date: formatDisplayDate(form.date),
@@ -75,7 +75,7 @@ const CreateEventPage = () => {
       image: imageData,
     };
 
-    saveEvent(newEvent);
+    saveCategory(newCategory);
     navigate("/admin/events");
   };
 
@@ -97,10 +97,10 @@ const CreateEventPage = () => {
               color: "text.primary",
             }}
           >
-            Buat Event
+            Buat Category
           </Typography>
           <Typography sx={{ mt: 0.6, fontSize: { xs: "11px", sm: "12px" }, color: "text.secondary" }}>
-            Isi detail event lari yang akan diselenggarakan.
+            Isi detail category yang akan dibuat.
           </Typography>
         </Box>
 
@@ -119,7 +119,7 @@ const CreateEventPage = () => {
           }}
         >
           <Box>
-            <Typography sx={labelSx}>Nama Event</Typography>
+            <Typography sx={labelSx}>Nama Category</Typography>
             <TextField
               fullWidth
               size="small"
@@ -131,7 +131,7 @@ const CreateEventPage = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Gambar Event</Typography>
+            <Typography sx={labelSx}>Gambar Category</Typography>
 
             {imagePreview ? (
               <Box sx={{ display: "flex", justifyContent: "center" }}>
@@ -139,7 +139,7 @@ const CreateEventPage = () => {
                   <Box
                     component="img"
                     src={imagePreview}
-                    alt="Preview event"
+                    alt="Preview category"
                     sx={{
                       display: "block",
                       width: "auto",
@@ -200,7 +200,7 @@ const CreateEventPage = () => {
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Box sx={{ flex: 1, minWidth: 180 }}>
-              <Typography sx={labelSx}>Tanggal Event</Typography>
+              <Typography sx={labelSx}>Tanggal Category</Typography>
               <TextField
                 fullWidth
                 size="small"
@@ -212,7 +212,7 @@ const CreateEventPage = () => {
               />
             </Box>
             <Box sx={{ flex: 1, minWidth: 140 }}>
-              <Typography sx={labelSx}>Jam Event</Typography>
+              <Typography sx={labelSx}>Jam Category</Typography>
               <TextField
                 fullWidth
                 size="small"
@@ -226,7 +226,7 @@ const CreateEventPage = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Lokasi Event</Typography>
+            <Typography sx={labelSx}>Lokasi Category</Typography>
             <TextField
               fullWidth
               size="small"
@@ -238,12 +238,12 @@ const CreateEventPage = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Deskripsi Event</Typography>
+            <Typography sx={labelSx}>Deskripsi Category</Typography>
             <TextField
               fullWidth
               multiline
               minRows={4}
-              placeholder="Ceritakan tentang event ini..."
+              placeholder="Ceritakan tentang category ini..."
               value={form.description}
               onChange={handleChange("description")}
               sx={fieldSx}
@@ -251,14 +251,14 @@ const CreateEventPage = () => {
           </Box>
 
           <DynamicPointsField
-            label="Syarat dan Ketentuan Event"
+            label="Syarat dan Ketentuan Category"
             placeholder="Syarat & ketentuan poin"
             values={terms}
             onChange={setTerms}
           />
 
           <DynamicPointsField
-            label="Fasilitas Event"
+            label="Fasilitas Category"
             placeholder="Fasilitas poin"
             values={facilities}
             onChange={setFacilities}
@@ -314,7 +314,7 @@ const CreateEventPage = () => {
                 "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
               }}
             >
-              Simpan Event
+              Simpan Category
             </Button>
           </Box>
         </Box>
@@ -323,4 +323,4 @@ const CreateEventPage = () => {
   );
 };
 
-export default CreateEventPage;
+export default CreateKategoryPage;
