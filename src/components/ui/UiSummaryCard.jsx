@@ -85,8 +85,8 @@ const UiSummaryCard = ({
 
       <Box sx={{ display: "flex", gap: 1 }}>
         {onBack && (
-          <UiButtonIcon bordered onClick={onBack} title="Kembali">
-            <ChevronLeft size={18} />
+          <UiButtonIcon active={true} size="large" bordered onClick={onBack} title="Kembali">
+            <ChevronLeft color="#032FD9"/>
           </UiButtonIcon>
         )}
         <UiButton

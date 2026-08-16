@@ -1,9 +1,17 @@
 import { Typography, Box } from "@mui/material";
 import UiButton from "../../../components/ui/UiButton";
+import UiButtonIcon from "../../../components/ui/UiButtonIcon";
+import { ChevronLeft } from "lucide-react";
+import UiBaseIcon from "../../../components/ui/UiBaseIcon";
 
 const formatCurrency = (n) => `Rp${Number(n || 0).toLocaleString("id-ID")}`;
 
-const TicketFooter = ({ total = 0, onAction, actionLabel = "Lanjutkan" }) => {
+const TicketFooter = ({
+  total = 0,
+  onBack,
+  onAction,
+  actionLabel = "Lanjutkan",
+}) => {
   return (
     <Box
       sx={{
@@ -27,11 +35,22 @@ const TicketFooter = ({ total = 0, onAction, actionLabel = "Lanjutkan" }) => {
         }}
       >
         <Typography sx={{ color: "text.secondary" }}>Total Bayar</Typography>
-        <Typography sx={{ fontWeight: 700 }}>{formatCurrency(total)}</Typography>
+        <Typography sx={{ fontWeight: 700 }}>
+          {formatCurrency(total)}
+        </Typography>
       </Box>
-      <UiButton fullWidth size="large" onClick={onAction}>
-        {actionLabel}
-      </UiButton>
+      <Box sx={{ display: "flex", gap: 1 }}>
+        {onBack && (
+          <UiButtonIcon active={true} size="large" bordered={true} onClick={onBack}>
+            <UiBaseIcon>
+              <ChevronLeft color="#032FD9"/>
+            </UiBaseIcon>
+          </UiButtonIcon>
+        )}
+        <UiButton fullWidth size="large" onClick={onAction}>
+          {actionLabel}
+        </UiButton>
+      </Box>
     </Box>
   );
 };

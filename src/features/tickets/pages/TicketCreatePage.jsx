@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Box } from "@mui/material";
 import TicketStepper from "../components/TicketStepper";
 import TicketHeader from "../components/TicketHeader";
@@ -12,23 +12,40 @@ const ORDER_ITEMS = [{ name: "CHILD - TICKETS ARTJOG", qty: 1, price: 50000 }];
 
 const TicketCreatePage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [formState, setFormState] = useState(null);
+  const formRef = useRef(null);
+
+  const activeStep = parseInt(searchParams.get("step") || "0", 10);
 
   const total = ORDER_ITEMS.reduce((sum, it) => sum + it.price * it.qty, 0);
 
   const handleContinue = () => {
-    navigate("/tickets/payment-success", {
-      state: {
-        buyer: formState?.buyer,
-        items: ORDER_ITEMS,
-        total,
-      },
-    });
+    if (formRef.current && !formRef.current.validateCurrentStep()) {
+      return;
+    }
+    
+    const nextStep = activeStep + 1;
+    setSearchParams({ step: nextStep.toString() });
+    // navigate("/tickets/payment-success", {
+    //   state: {
+    //     buyer: formState?.buyer,
+    //     items: ORDER_ITEMS,
+    //     total,
+    //   },
+    // });
   };
+
+  const handleBack = () => {
+    if (activeStep > 0) {
+      const prevStep = activeStep - 1;
+      setSearchParams({ step: prevStep.toString() });
+    }
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff" }}>
-      <TicketStepper activeStep={1} />
+      <TicketStepper activeStep={activeStep} />
 
       <Box
         sx={{
@@ -62,7 +79,12 @@ const TicketCreatePage = () => {
           }}
         >
           <Box sx={{ flex: 1, minWidth: 0, width: "100%" }}>
-            <TicketForm items={ORDER_ITEMS} onStateChange={setFormState} />
+            <TicketForm 
+              ref={formRef}
+              activeStep={activeStep} 
+              items={ORDER_ITEMS} 
+              onStateChange={setFormState} 
+            />
           </Box>
 
           <Box
@@ -74,12 +96,12 @@ const TicketCreatePage = () => {
               top: 24,
             }}
           >
-            <UiSummaryCard items={ORDER_ITEMS} onAction={handleContinue} />
+            <UiSummaryCard items={ORDER_ITEMS} onAction={handleContinue} onBack={activeStep > 0 ? handleBack : null} />
           </Box>
         </Box>
       </Box>
 
-      <TicketFooter total={total} onAction={handleContinue} />
+      <TicketFooter total={total} onAction={handleContinue} onBack={activeStep > 0 ? handleBack : null} />
     </Box>
   );
 };

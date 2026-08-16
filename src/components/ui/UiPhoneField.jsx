@@ -1,4 +1,5 @@
-import { FormGroup, FormLabel, InputAdornment, TextField, Box } from "@mui/material";
+import { FormGroup, FormLabel, InputAdornment, TextField, Box, FormHelperText } from "@mui/material";
+import { useState, useEffect } from "react";
 
 const flagColors = {
   ID: ["#FF0000", "#FFFFFF"],
@@ -37,8 +38,19 @@ const UiPhoneField = ({
   value,
   onChange,
   placeholder = "",
+  error = "",
   ...props
 }) => {
+  const [errorText, setErrorText] = useState("");
+
+  useEffect(() => {
+    setErrorText(error);
+  }, [error]);
+
+  const isValidationError = (error = "") => {
+    return error.trim().length > 0;
+  };
+
   return (
     <FormGroup>
       {children && (
@@ -60,6 +72,7 @@ const UiPhoneField = ({
         onChange={onChange}
         placeholder={placeholder}
         type="tel"
+        error={isValidationError(errorText)}
         slotProps={{
           input: {
             startAdornment: (
@@ -82,6 +95,11 @@ const UiPhoneField = ({
         }}
         {...props}
       />
+      {isValidationError(errorText) && (
+        <FormHelperText sx={{ fontSize: "14px" }} error>
+          {errorText}
+        </FormHelperText>
+      )}
     </FormGroup>
   );
 };
