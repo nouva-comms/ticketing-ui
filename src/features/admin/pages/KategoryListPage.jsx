@@ -4,11 +4,11 @@ import { Plus, Pencil, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import EventCard from "../../dashboard/components/EventCard";
-import { getEvents } from "../utils/eventsStorage";
+import { getCategories } from "../utils/categoriesStorage";
 
-const EventsListPage = () => {
+const KategoryListPage = () => {
   const navigate = useNavigate();
-  const [events] = useState(() => getEvents());
+  const [categories] = useState(() => getCategories());
 
   return (
     <AdminLayout>
@@ -32,15 +32,15 @@ const EventsListPage = () => {
                 color: "text.primary",
               }}
             >
-              Semua Event
+              Semua Category
             </Typography>
             <Typography sx={{ mt: 0.6, fontSize: { xs: "11px", sm: "12px" }, color: "text.secondary" }}>
-              Event yang sudah kamu buat.
+              Category yang sudah kamu buat.
             </Typography>
           </Box>
 
           <Button
-            onClick={() => navigate("/admin/events/create")}
+            onClick={() => navigate("/admin/kategory/create")}
             variant="contained"
             startIcon={<Plus size={16} />}
             sx={{
@@ -54,11 +54,11 @@ const EventsListPage = () => {
               "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
             }}
           >
-            Buat Event
+            Buat Category
           </Button>
         </Box>
 
-        {events.length === 0 ? (
+        {categories.length === 0 ? (
           <Box
             sx={{
               textAlign: "center",
@@ -71,10 +71,10 @@ const EventsListPage = () => {
             }}
           >
             <Typography sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
-              Belum ada event
+              Belum ada category
             </Typography>
             <Typography sx={{ fontSize: 14 }}>
-              Klik &quot;Buat Event&quot; untuk menambahkan event pertama kamu.
+              Klik &quot;Buat Category&quot; untuk menambahkan category pertama kamu.
             </Typography>
           </Box>
         ) : (
@@ -85,10 +85,10 @@ const EventsListPage = () => {
               gap: 2.5,
             }}
           >
-            {events.map((ev) => (
+            {categories.map((ev) => (
               <Box key={ev.id} sx={{ position: "relative" }}>
                 <IconButton
-                  onClick={() => navigate(`/admin/events/${ev.id}`)}
+                  onClick={() => navigate(`/admin/kategory/${ev.id}`)}
                   title="Edit Event"
                   sx={{
                     position: "absolute",
@@ -107,30 +107,11 @@ const EventsListPage = () => {
                   <Pencil size={14} />
                 </IconButton>
 
-                <IconButton
-                  onClick={() => navigate(`/admin/events/${ev.id}/profile`)}
-                  title="Lihat Profil Event"
-                  sx={{
-                    position: "absolute",
-                    top: 12,
-                    right: 12,
-                    zIndex: 2,
-                    width: 30,
-                    height: 30,
-                    bgcolor: "#fff",
-                    border: "1px solid",
-                    borderColor: "border.main",
-                    boxShadow: "0 2px 6px rgba(0,0,0,.12)",
-                    "&:hover": { bgcolor: "primary.background" },
-                  }}
-                >
-                  <Eye size={14} />
-                </IconButton>
-
                 <EventCard
                   event={ev}
                   actionLabel="Partisipan"
-                  onAction={(e) => navigate(`/admin/events/${e.id}/participants`)}
+                  onAction={(e) => navigate(`/admin/kategory/${e.id}/participants`)}
+                  onClick={() => navigate(`/admin/kategory/${ev.id}`)}
                 />
               </Box>
             ))}
@@ -141,4 +122,4 @@ const EventsListPage = () => {
   );
 };
 
-export default EventsListPage;
+export default KategoryListPage;

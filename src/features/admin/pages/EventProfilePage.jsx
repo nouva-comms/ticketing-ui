@@ -42,7 +42,7 @@ const EventProfilePage = () => {
             "&:hover": { color: "primary.main" },
           }}
         >
-          <ArrowLeft size={14} /> Kembali ke Semua Event
+          {/* <ArrowLeft size={14} /> Kembali ke Semua Event */}
         </Box>
 
         <Box
@@ -96,14 +96,21 @@ const EventProfilePage = () => {
                 }}
               >
                 {displayAvatar ? (
-                  <Box component="img" src={displayAvatar} alt="Avatar" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Box
+                    component="img"
+                    src={displayAvatar}
+                    alt="Avatar"
+                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 ) : (
                   <UserRound size={72} color="#fff" />
                 )}
               </Box>
 
               <Button
-                onClick={() => navigate(`/admin/events/${event.id}/profile/edit`)}
+                onClick={() =>
+                  navigate(`/admin/events/${event.id}/profile/edit`)
+                }
                 variant="contained"
                 sx={{
                   textTransform: "none",
@@ -122,16 +129,42 @@ const EventProfilePage = () => {
 
             {/* INFO */}
             <Box sx={{ pt: 2, pb: 4 }}>
-              <Typography sx={{ fontWeight: 800, fontSize: { xs: 22, sm: 26 }, mb: 1.5 }}>
+              <Typography
+                sx={{ fontWeight: 800, fontSize: { xs: 22, sm: 26 }, mb: 1.5 }}
+              >
                 {displayName}
               </Typography>
 
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.8, mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", fontSize: 13.5 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 0.8,
+                  mb: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "text.secondary",
+                    fontSize: 13.5,
+                  }}
+                >
                   <Calendar size={15} /> {displayDate}
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: "text.secondary", fontSize: 13.5 }}>
-                  <MapPin size={15} /> {[displayVenue, displayCity].filter(Boolean).join(", ")}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: "text.secondary",
+                    fontSize: 13.5,
+                  }}
+                >
+                  <MapPin size={15} />{" "}
+                  {[displayVenue, displayCity].filter(Boolean).join(", ")}
                 </Box>
               </Box>
 
@@ -158,7 +191,10 @@ const EventProfilePage = () => {
                         cursor: href ? "pointer" : "default",
                         transition: "border-color .2s, color .2s",
                         "&:hover": href
-                          ? { borderColor: "primary.main", color: "primary.main" }
+                          ? {
+                              borderColor: "primary.main",
+                              color: "primary.main",
+                            }
                           : {},
                       }}
                     >
@@ -172,7 +208,14 @@ const EventProfilePage = () => {
                 {(displayDescription || "Belum ada deskripsi untuk event ini.")
                   .split("\n\n")
                   .map((p, i) => (
-                    <Typography key={i} sx={{ fontSize: 13.5, lineHeight: 1.8, color: "text.secondary" }}>
+                    <Typography
+                      key={i}
+                      sx={{
+                        fontSize: 13.5,
+                        lineHeight: 1.8,
+                        color: "text.secondary",
+                      }}
+                    >
                       {p}
                     </Typography>
                   ))}

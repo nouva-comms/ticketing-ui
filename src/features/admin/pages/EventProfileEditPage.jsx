@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, TextField, Button, InputAdornment } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  InputAdornment,
+} from "@mui/material";
 import { Pencil, UserRound } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import { getEventProfileById } from "../data/eventProfiles";
-import { getProfileByEventId, saveProfileForEvent } from "../utils/eventProfileStorage";
+import {
+  getProfileByEventId,
+  saveProfileForEvent,
+} from "../utils/eventProfileStorage";
 import { SOCIALS } from "../components/SocialIcons";
 
 const fileToBase64 = (file) =>
@@ -18,13 +27,22 @@ const fileToBase64 = (file) =>
 const formatDisplayDate = (isoDate) => {
   if (!isoDate) return "";
   const d = new Date(`${isoDate}T00:00:00`);
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 };
 
 const fieldSx = {
   "& .MuiOutlinedInput-root": { borderRadius: "8px", fontSize: "13px" },
 };
-const labelSx = { fontSize: "12px", fontWeight: 500, color: "text.secondary", mb: 1 };
+const labelSx = {
+  fontSize: "12px",
+  fontWeight: 500,
+  color: "text.secondary",
+  mb: 1,
+};
 
 const EventProfileEditPage = () => {
   const { id } = useParams();
@@ -34,7 +52,12 @@ const EventProfileEditPage = () => {
   const [location, setLocation] = useState("");
   const [dateISO, setDateISO] = useState("");
   const [description, setDescription] = useState("");
-  const [social, setSocial] = useState({ instagram: "", facebook: "", youtube: "", tiktok: "" });
+  const [social, setSocial] = useState({
+    instagram: "",
+    facebook: "",
+    youtube: "",
+    tiktok: "",
+  });
 
   const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
@@ -76,8 +99,12 @@ const EventProfileEditPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const bannerData = bannerFile ? await fileToBase64(bannerFile) : bannerPreview;
-    const avatarData = avatarFile ? await fileToBase64(avatarFile) : avatarPreview;
+    const bannerData = bannerFile
+      ? await fileToBase64(bannerFile)
+      : bannerPreview;
+    const avatarData = avatarFile
+      ? await fileToBase64(avatarFile)
+      : avatarPreview;
 
     saveProfileForEvent(id, {
       name,
@@ -92,7 +119,6 @@ const EventProfileEditPage = () => {
 
     navigate(`/admin/events/${id}/profile`);
   };
-
 
   return (
     <AdminLayout>
@@ -137,7 +163,12 @@ const EventProfileEditPage = () => {
             }}
           >
             <Pencil size={15} />
-            <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleBannerChange}
+            />
           </Box>
         </Box>
 
@@ -169,7 +200,12 @@ const EventProfileEditPage = () => {
                 }}
               >
                 {avatarPreview ? (
-                  <Box component="img" src={avatarPreview} alt="Avatar" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <Box
+                    component="img"
+                    src={avatarPreview}
+                    alt="Avatar"
+                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 ) : (
                   <UserRound size={54} color="#fff" />
                 )}
@@ -195,7 +231,12 @@ const EventProfileEditPage = () => {
                 }}
               >
                 <Pencil size={13} />
-                <input type="file" accept="image/*" hidden onChange={handleAvatarChange} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleAvatarChange}
+                />
               </Box>
             </Box>
 
@@ -218,15 +259,35 @@ const EventProfileEditPage = () => {
           </Box>
 
           {/* FORM */}
-          <Box sx={{ pt: 3, pb: 4, display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Box
+            sx={{
+              pt: 3,
+              pb: 4,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2.5,
+            }}
+          >
             <Box>
               <Typography sx={labelSx}>Nama</Typography>
-              <TextField fullWidth size="small" value={name} onChange={(e) => setName(e.target.value)} sx={fieldSx} />
+              <TextField
+                fullWidth
+                size="small"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                sx={fieldSx}
+              />
             </Box>
 
             <Box>
               <Typography sx={labelSx}>Lokasi</Typography>
-              <TextField fullWidth size="small" value={location} onChange={(e) => setLocation(e.target.value)} sx={fieldSx} />
+              <TextField
+                fullWidth
+                size="small"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                sx={fieldSx}
+              />
             </Box>
 
             <Box>
@@ -252,7 +313,9 @@ const EventProfileEditPage = () => {
                     size="small"
                     placeholder={`www.${key}.com`}
                     value={social[key]}
-                    onChange={(e) => setSocial((prev) => ({ ...prev, [key]: e.target.value }))}
+                    onChange={(e) =>
+                      setSocial((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
                     sx={fieldSx}
                     slotProps={{
                       input: {
@@ -264,7 +327,9 @@ const EventProfileEditPage = () => {
                                 height: 28,
                                 borderRadius: "50%",
                                 border: "1.5px solid",
-                                borderColor: social[key] ? "primary.main" : "#E2E4E9",
+                                borderColor: social[key]
+                                  ? "primary.main"
+                                  : "#E2E4E9",
                                 bgcolor: "transparent",
                                 color: social[key] ? "primary.main" : "#0A0A0C",
                                 display: "flex",

@@ -1,14 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, TextField, Button, InputAdornment } from "@mui/material";
-import { ImagePlus, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ImagePlus, X, ArrowLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import DynamicPointsField from "../components/DynamicPointsField";
-import { saveEvent } from "../utils/eventsStorage";
+import { getCategoryById, updateCategory } from "../utils/categoriesStorage";
 
-const CreateEventPage = () => {
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+const formatDisplayDate = (isoDate) => {
+  if (!isoDate) return "";
+  const d = new Date(`${isoDate}T00:00:00`);
+  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+};
+
+const fieldSx = {
+  "& .MuiOutlinedInput-root": { borderRadius: "8px", fontSize: "13px" },
+};
+const labelSx = { fontSize: "12px", fontWeight: 500, color: "text.secondary", mb: 1 };
+
+const KategoryDetailPage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
+  const [notFound, setNotFound] = useState(false);
   const [form, setForm] = useState({
     name: "",
     date: "",
@@ -22,6 +43,27 @@ const CreateEventPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [terms, setTerms] = useState([""]);
   const [facilities, setFacilities] = useState([""]);
+
+  useEffect(() => {
+    const ev = getCategoryById(id);
+    if (!ev) {
+      setNotFound(true);
+      return;
+    }
+
+    setForm({
+      name: ev.name || "",
+      date: ev.dateISO || "",
+      time: ev.time || "",
+      location: ev.venue || "",
+      description: ev.description || "",
+      quota: ev.quota ?? "",
+      price: ev.price ?? "",
+    });
+    setImagePreview(ev.image || null);
+    setTerms(ev.terms && ev.terms.length ? [...ev.terms, ""] : [""]);
+    setFacilities(ev.facilities && ev.facilities.length ? [...ev.facilities, ""] : [""]);
+  }, [id]);
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -39,55 +81,75 @@ const CreateEventPage = () => {
     setImagePreview(null);
   };
 
-  const formatDisplayDate = (isoDate) => {
-    if (!isoDate) return "";
-    const d = new Date(`${isoDate}T00:00:00`);
-    return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
-  };
-
-  const fileToBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const imageData = image ? await fileToBase64(image) : null;
+    const imageData = image ? await fileToBase64(image) : imagePreview;
 
-    const newEvent = {
-      id: Date.now(),
+    updateCategory(id, {
       name: form.name,
       date: formatDisplayDate(form.date),
       dateISO: form.date,
       time: form.time,
       venue: form.location,
-      city: "",
       description: form.description,
       terms: terms.filter((t) => t.trim() !== ""),
       facilities: facilities.filter((f) => f.trim() !== ""),
-      cats: [],
       price: Number(form.price) || 0,
       quota: Number(form.quota) || 0,
       image: imageData,
-    };
+    });
 
-    saveEvent(newEvent);
-    navigate("/admin/events");
+    navigate("/admin/kategory");
   };
 
-  const fieldSx = {
-    "& .MuiOutlinedInput-root": { borderRadius: "8px", fontSize: "13px" },
-  };
-
-  const labelSx = { fontSize: "12px", fontWeight: 500, color: "text.secondary", mb: 1 };
+  if (notFound) {
+    return (
+      <AdminLayout>
+        <Box
+          sx={{
+            textAlign: "center",
+            py: 8,
+            color: "text.secondary",
+            border: "1.5px dashed",
+            borderColor: "border.main",
+            borderRadius: "10px",
+            backgroundColor: "#FFFFFF",
+          }}
+        >
+          <Typography sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
+            Kategori tidak ditemukan
+          </Typography>
+          <Button
+            onClick={() => navigate("/admin/kategory")}
+            sx={{ textTransform: "none", mt: 1.5 }}
+          >
+            ← Kembali ke Semua Kategori
+          </Button>
+        </Box>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
       <Box sx={{ width: "100%", boxSizing: "border-box" }}>
+        <Box
+          onClick={() => navigate("/admin/kategory")}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.75,
+            color: "text.secondary",
+            fontSize: "12px",
+            cursor: "pointer",
+            mb: 1.5,
+            "&:hover": { color: "primary.main" },
+          }}
+        >
+          <ArrowLeft size={14} /> Kembali ke Semua Kategori
+        </Box>
+
         <Box sx={{ mb: 3 }}>
           <Typography
             sx={{
@@ -97,10 +159,10 @@ const CreateEventPage = () => {
               color: "text.primary",
             }}
           >
-            Buat Event
+            Detail Kategori
           </Typography>
           <Typography sx={{ mt: 0.6, fontSize: { xs: "11px", sm: "12px" }, color: "text.secondary" }}>
-            Isi detail event lari yang akan diselenggarakan.
+            Lihat dan ubah detail kategori ini.
           </Typography>
         </Box>
 
@@ -116,14 +178,14 @@ const CreateEventPage = () => {
             display: "flex",
             flexDirection: "column",
             gap: 2.5,
+            width: "100%",
           }}
         >
           <Box>
-            <Typography sx={labelSx}>Nama Event</Typography>
+            <Typography sx={labelSx}>Nama Kategori</Typography>
             <TextField
               fullWidth
               size="small"
-              placeholder="Contoh: Nouva Sunset 10K"
               value={form.name}
               onChange={handleChange("name")}
               sx={fieldSx}
@@ -131,7 +193,7 @@ const CreateEventPage = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Gambar Event</Typography>
+            <Typography sx={labelSx}>Gambar Kategori</Typography>
 
             {imagePreview ? (
               <Box sx={{ display: "flex", justifyContent: "center" }}>
@@ -139,7 +201,7 @@ const CreateEventPage = () => {
                   <Box
                     component="img"
                     src={imagePreview}
-                    alt="Preview event"
+                    alt="Preview kategori"
                     sx={{
                       display: "block",
                       width: "auto",
@@ -182,6 +244,7 @@ const CreateEventPage = () => {
                   justifyContent: "center",
                   gap: 1,
                   width: "100%",
+                  maxWidth: 320,
                   height: 140,
                   borderRadius: "10px",
                   border: "1.5px dashed",
@@ -200,7 +263,7 @@ const CreateEventPage = () => {
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Box sx={{ flex: 1, minWidth: 180 }}>
-              <Typography sx={labelSx}>Tanggal Event</Typography>
+              <Typography sx={labelSx}>Tanggal Kategori</Typography>
               <TextField
                 fullWidth
                 size="small"
@@ -212,7 +275,7 @@ const CreateEventPage = () => {
               />
             </Box>
             <Box sx={{ flex: 1, minWidth: 140 }}>
-              <Typography sx={labelSx}>Jam Event</Typography>
+              <Typography sx={labelSx}>Jam Kategori</Typography>
               <TextField
                 fullWidth
                 size="small"
@@ -226,11 +289,10 @@ const CreateEventPage = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Lokasi Event</Typography>
+            <Typography sx={labelSx}>Lokasi Kategori</Typography>
             <TextField
               fullWidth
               size="small"
-              placeholder="Contoh: GBK Senayan, Jakarta"
               value={form.location}
               onChange={handleChange("location")}
               sx={fieldSx}
@@ -238,12 +300,11 @@ const CreateEventPage = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Deskripsi Event</Typography>
+            <Typography sx={labelSx}>Deskripsi Kategori</Typography>
             <TextField
               fullWidth
               multiline
               minRows={4}
-              placeholder="Ceritakan tentang event ini..."
               value={form.description}
               onChange={handleChange("description")}
               sx={fieldSx}
@@ -251,14 +312,14 @@ const CreateEventPage = () => {
           </Box>
 
           <DynamicPointsField
-            label="Syarat dan Ketentuan Event"
+            label="Syarat dan Ketentuan Kategori"
             placeholder="Syarat & ketentuan poin"
             values={terms}
             onChange={setTerms}
           />
 
           <DynamicPointsField
-            label="Fasilitas Event"
+            label="Fasilitas Kategori"
             placeholder="Fasilitas poin"
             values={facilities}
             onChange={setFacilities}
@@ -271,7 +332,6 @@ const CreateEventPage = () => {
                 fullWidth
                 size="small"
                 type="number"
-                placeholder="Contoh: 500"
                 value={form.quota}
                 onChange={handleChange("quota")}
                 sx={fieldSx}
@@ -283,7 +343,6 @@ const CreateEventPage = () => {
                 fullWidth
                 size="small"
                 type="number"
-                placeholder="0"
                 value={form.price}
                 onChange={handleChange("price")}
                 sx={fieldSx}
@@ -295,10 +354,10 @@ const CreateEventPage = () => {
           <Box sx={{ display: "flex", gap: 1.5, justifyContent: "flex-end", pt: 1 }}>
             <Button
               type="button"
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate("/admin/kategory")}
               sx={{ textTransform: "none", color: "text.secondary", fontSize: "13px" }}
             >
-              Batal
+              Kembali
             </Button>
             <Button
               type="submit"
@@ -314,7 +373,7 @@ const CreateEventPage = () => {
                 "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
               }}
             >
-              Simpan Event
+              Simpan Perubahan
             </Button>
           </Box>
         </Box>
@@ -323,4 +382,4 @@ const CreateEventPage = () => {
   );
 };
 
-export default CreateEventPage;
+export default KategoryDetailPage;

@@ -18,13 +18,13 @@ export const saveEvent = (event) => {
 
 export const getEventById = (id) => {
   const events = getEvents();
-  return events.find((e) => String(e.id) === String(id)) || null;
+  return events.find((item) => String(item.id) === String(id)) || null;
 };
 
 export const updateEvent = (id, updatedFields) => {
   const events = getEvents();
-  const next = events.map((e) =>
-    String(e.id) === String(id) ? { ...e, ...updatedFields } : e,
+  const next = events.map((item) =>
+    String(item.id) === String(id) ? { ...item, ...updatedFields } : item,
   );
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   return next;

@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import UiBaseIcon from "../../../components/ui/UiBaseIcon";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, Map } from "lucide-react";
 
 
 const TicketHeader = ({
@@ -35,7 +35,7 @@ const TicketHeader = ({
         <InfoRow icon={<Clock size={16} />}>{time}</InfoRow>
       </Box>
 
-      <InfoRow icon={<MapPin size={16} />}>{location}</InfoRow>
+      <InfoRow icon={<Map />}>{location}</InfoRow>
     </Box>
   );
 };

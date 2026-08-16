@@ -16,17 +16,9 @@ import {
   CalendarDays,
   Plus,
   Ticket,
-  Tags,
   Users,
-  ShoppingCart,
-  ScanLine,
-  ReceiptText,
-  CreditCard,
-  Wallet,
   BarChart3,
   Banknote,
-  UserCog,
-  Settings,
   ChevronDown,
   ChevronRight,
   ChevronLeft,
@@ -48,13 +40,9 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
 
   // Semua menu tertutup ketika pertama kali halaman dibuka.
   const [openMenus, setOpenMenus] = useState({
-    event: false,
-    tiket: false,
-    peserta: false,
-    transaksi: false,
-    laporan: false,
-    pengaturan: false,
-  });
+      tiket: false,
+      laporan: false,
+    });
 
   /*
    * ============================================================
@@ -70,12 +58,14 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
   useEffect(() => {
     if (location.pathname === "/admin") {
       setActiveMenu("dashboard");
-    } else if (location.pathname === "/admin/events/create") {
-      setActiveMenu("buat-event");
-      setOpenMenus((prev) => ({ ...prev, event: true }));
+    } else if (location.pathname === "/admin/kategory/create") {
+      setActiveMenu("buat-category");
+      setOpenMenus((prev) => ({ ...prev, tiket: true }));
+    } else if (location.pathname.startsWith("/admin/kategory")) {
+      setActiveMenu("semua-category");
+      setOpenMenus((prev) => ({ ...prev, tiket: true }));
     } else if (location.pathname.startsWith("/admin/events")) {
-      setActiveMenu("semua-event");
-      setOpenMenus((prev) => ({ ...prev, event: true }));
+      setActiveMenu("event");
     }
   }, [location.pathname]);
 
@@ -88,214 +78,60 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
   const menuItems = [
     {
       id: "dashboard",
-
       label: "Dashboard",
-
       icon: <LayoutDashboard size={18} />,
-
       type: "single",
-
       path: "/admin",
     },
 
     {
       id: "event",
-
       label: "Event",
-
       icon: <CalendarDays size={18} />,
-
-      type: "group",
-
-      children: [
-        {
-          id: "semua-event",
-
-          label: "Semua Event",
-
-          path: "/admin/events",
-        },
-
-        {
-          id: "buat-event",
-
-          label: "Buat Event",
-
-          icon: <Plus size={15} />,
-
-          path: "/admin/events/create",
-        },
-      ],
+      type: "single",
+      path: "/admin/events/kavaya-run-2026/profile",
     },
 
     {
       id: "tiket",
-
       label: "Tiket",
-
       icon: <Ticket size={18} />,
-
       type: "group",
-
       children: [
         {
-          id: "jenis-tiket",
-
-          label: "Jenis Tiket",
-
-          icon: <Tags size={15} />,
+          id: "semua-category",
+          label: "Semua Category",
+          path: "/admin/kategory",
         },
-
         {
-          id: "harga-kuota",
-
-          label: "Harga & Kuota",
-
-          icon: <Ticket size={15} />,
-        },
-      ],
-    },
-
-    {
-      id: "peserta",
-
-      label: "Peserta",
-
-      icon: <Users size={18} />,
-
-      type: "group",
-
-      children: [
-        {
-          id: "daftar-peserta",
-
-          label: "Daftar Peserta",
-
-          icon: <Users size={15} />,
-        },
-
-        {
-          id: "pesanan",
-
-          label: "Pesanan",
-
-          icon: <ShoppingCart size={15} />,
-        },
-
-        {
-          id: "check-in",
-
-          label: "Check-in",
-
-          icon: <ScanLine size={15} />,
-        },
-      ],
-    },
-
-    {
-      id: "transaksi",
-
-      label: "Transaksi",
-
-      icon: <ReceiptText size={18} />,
-
-      type: "group",
-
-      children: [
-        {
-          id: "semua-transaksi",
-
-          label: "Semua Transaksi",
-
-          icon: <ReceiptText size={15} />,
-        },
-
-        {
-          id: "pembayaran",
-
-          label: "Pembayaran",
-
-          icon: <CreditCard size={15} />,
-        },
-
-        {
-          id: "pencairan-dana",
-
-          label: "Pencairan Dana",
-
-          icon: <Wallet size={15} />,
+          id: "buat-category",
+          label: "Buat Category",
+          icon: <Plus size={15} />,
+          path: "/admin/kategory/create",
         },
       ],
     },
 
     {
       id: "laporan",
-
       label: "Laporan",
-
       icon: <BarChart3 size={18} />,
-
       type: "group",
-
       children: [
         {
           id: "penjualan-tiket",
-
           label: "Penjualan Tiket",
-
           icon: <Ticket size={15} />,
         },
-
         {
           id: "pendapatan",
-
           label: "Pendapatan",
-
           icon: <Banknote size={15} />,
         },
-
         {
           id: "laporan-peserta",
-
           label: "Peserta",
-
           icon: <Users size={15} />,
-        },
-      ],
-    },
-
-    {
-      id: "pengaturan",
-
-      label: "Pengaturan",
-
-      icon: <Settings size={18} />,
-
-      type: "group",
-
-      children: [
-        {
-          id: "pengaturan-event",
-
-          label: "Pengaturan Event",
-
-          icon: <CalendarDays size={15} />,
-        },
-
-        {
-          id: "tim-hak-akses",
-
-          label: "Tim & Hak Akses",
-
-          icon: <UserCog size={15} />,
-        },
-
-        {
-          id: "pengaturan-pembayaran",
-
-          label: "Pengaturan Pembayaran",
-
-          icon: <CreditCard size={15} />,
         },
       ],
     },
