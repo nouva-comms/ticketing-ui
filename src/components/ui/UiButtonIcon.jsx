@@ -6,9 +6,11 @@ function UiButtonIcon({
   size = "medium",
   bordered = false,
   loading = false,
+  active = false,
   ...prop
 }) {
-  const dimension = size === "small" ? "24px" : "2rem";
+  const dimension = size === "small" ? "24px" : size == "large" ? "50px" : "2rem" ;
+  const color = active ? "#032FD9" : "#858585";
 
   return (
     <Tooltip title={title} placement="bottom">
@@ -24,7 +26,7 @@ function UiButtonIcon({
           justifyContent: "center",
           justifyItems: "center",
           borderRadius:"8px",
-          border: bordered ? "1px solid #858585" : "none",
+          border: bordered ? `1px solid ${color}` : "none",
           "&:hover": {
             backgroundColor: "#0B120E24",
           },

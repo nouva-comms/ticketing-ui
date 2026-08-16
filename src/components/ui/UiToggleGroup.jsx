@@ -3,7 +3,9 @@ import {
   FormLabel,
   ToggleButton,
   ToggleButtonGroup,
+  FormHelperText,
 } from "@mui/material";
+import { useState, useEffect } from "react";
 
 const UiToggleGroup = ({
   children,
@@ -13,8 +15,17 @@ const UiToggleGroup = ({
   value,
   onChange,
   fullWidth = false,
+  error = "",
   ...props
 }) => {
+  const [errorText, setErrorText] = useState("");
+
+  useEffect(() => {
+    setErrorText(error);
+  }, [error]);
+
+  const isValidationError = (err = "") => err.trim().length > 0;
+
   return (
     <FormGroup>
       {children && (
@@ -49,6 +60,9 @@ const UiToggleGroup = ({
                 backgroundColor: "primary.background",
               },
             },
+          "& .MuiToggleButton-root": {
+            borderColor: isValidationError(errorText) ? "#d32f2f" : "border.main",
+          },
         }}
         {...props}
       >
@@ -63,7 +77,7 @@ const UiToggleGroup = ({
               textTransform: "none",
               borderRadius: "8px !important",
               border: "1px solid",
-              borderColor: "border.main",
+              borderColor: isValidationError(errorText) ? "#d32f2f" : "border.main",
               color: "text.secondary",
               fontSize: size === "extraSmall" ? "14px" : "1rem",
               "&.Mui-selected": {
@@ -81,6 +95,11 @@ const UiToggleGroup = ({
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
+      {isValidationError(errorText) && (
+        <FormHelperText sx={{ fontSize: "14px" }} error>
+          {errorText}
+        </FormHelperText>
+      )}
     </FormGroup>
   );
 };

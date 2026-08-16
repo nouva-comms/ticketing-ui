@@ -7,7 +7,7 @@ const STEPS = [
   { label: "Pembayaran" },
 ];
 
-const TicketStepper = ({ activeStep = 1 }) => {
+const TicketStepper = ({ activeStep }) => {
   return <UiStepper steps={STEPS} activeStep={activeStep} />;
 };
 

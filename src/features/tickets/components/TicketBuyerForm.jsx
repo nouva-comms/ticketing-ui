@@ -13,7 +13,7 @@ const RequiredLabel = ({ children }) => (
   </Stack>
 );
 
-const TicketBuyerForm = ({ value, onChange }) => {
+const TicketBuyerForm = ({ value, onChange, errors = {} }) => {
   const handleField = (field) => (e) =>
     onChange?.({ ...value, [field]: e.target.value });
 
@@ -41,6 +41,7 @@ const TicketBuyerForm = ({ value, onChange }) => {
         placeholder="Masukkan nama lengkap Anda"
         value={value.name}
         onChange={handleField("name")}
+        error={errors.name}
       >
         <RequiredLabel>Nama Lengkap</RequiredLabel>
       </UiFormGroup>
@@ -60,6 +61,7 @@ const TicketBuyerForm = ({ value, onChange }) => {
           onChange={(e) =>
             onChange?.({ ...value, identityType: e.target.value })
           }
+          error={errors.identityType}
         >
           <RequiredLabel>Tipe Identitas</RequiredLabel>
         </UiSelectField>
@@ -69,6 +71,7 @@ const TicketBuyerForm = ({ value, onChange }) => {
           placeholder="Masukkan nomor identitas Anda"
           value={value.identityNumber}
           onChange={handleField("identityNumber")}
+          error={errors.identityNumber}
         >
           <RequiredLabel>Nomor Identitas</RequiredLabel>
         </UiFormGroup>
@@ -80,6 +83,7 @@ const TicketBuyerForm = ({ value, onChange }) => {
         type="email"
         value={value.email}
         onChange={handleField("email")}
+        error={errors.email}
       >
         <RequiredLabel>Email</RequiredLabel>
       </UiFormGroup>
@@ -89,6 +93,7 @@ const TicketBuyerForm = ({ value, onChange }) => {
         placeholder="8123456789"
         value={value.whatsapp}
         onChange={handleField("whatsapp")}
+        error={errors.whatsapp}
       >
         <RequiredLabel>No. WhatsApp</RequiredLabel>
       </UiPhoneField>

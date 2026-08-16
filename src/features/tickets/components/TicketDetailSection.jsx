@@ -32,6 +32,7 @@ const TicketDetailSection = ({
   onChange,
   buyerData,
   showSyncToggle = true,
+  errors = {},
 }) => {
   const handleField = (field) => (e) =>
     onChange?.({ ...value, [field]: e.target.value });
@@ -80,7 +81,7 @@ const TicketDetailSection = ({
             <Ticket />
           </UiBaseIcon>
           <Typography sx={{ fontWeight: 600 }}>
-            Detail Tiket - {index}
+            Detail Tiket
           </Typography>
         </Box>
         {/* {showSyncToggle && (
@@ -99,7 +100,8 @@ const TicketDetailSection = ({
           textAlign: "center",
           py: 1,
           fontWeight: 700,
-          fontSize: "14px",
+          fontSize: "1rem",
+          color:"primary.main"
         }}
       >
         {categoryLabel}
@@ -169,20 +171,10 @@ const TicketDetailSection = ({
         value={value.gender}
         onChange={(v) => onChange?.({ ...value, gender: v })}
         fullWidth
+        error={errors.gender}
       >
         <RequiredLabel>Jenis Kelamin</RequiredLabel>
       </UiToggleGroup>
-
-      {/* Phone Number */}
-      {/* <UiPhoneField
-        id={`ticket-${index}-whatsapp`}
-        placeholder="8123456789"
-        value={value.whatsapp}
-        onChange={handleField("whatsapp")}
-        disabled={disabled}
-      >
-        <RequiredLabel>No. WhatsApp</RequiredLabel>
-      </UiPhoneField> */}
 
       <UiSelectField
         id={`ticket-${index}-age`}
@@ -190,6 +182,7 @@ const TicketDetailSection = ({
         options={AGE_OPTIONS}
         value={value.age}
         onChange={(e) => onChange?.({ ...value, age: e.target.value })}
+        error={errors.age}
       >
         <RequiredLabel>Usia</RequiredLabel>
       </UiSelectField>
@@ -199,6 +192,7 @@ const TicketDetailSection = ({
         placeholder="Alamat"
         value={value.address}
         onChange={handleField("address")}
+        error={errors.address}
       >
         <RequiredLabel>Alamat</RequiredLabel>
       </UiFormGroup>
@@ -215,6 +209,7 @@ const TicketDetailSection = ({
           placeholder="Kota"
           value={value.city}
           onChange={handleField("city")}
+          error={errors.city}
         >
           <RequiredLabel>Kota</RequiredLabel>
         </UiFormGroup>
@@ -224,6 +219,7 @@ const TicketDetailSection = ({
           placeholder="Provinsi"
           value={value.province}
           onChange={handleField("province")}
+          error={errors.province}
         >
           <RequiredLabel>Provinsi</RequiredLabel>
         </UiFormGroup>
@@ -234,18 +230,20 @@ const TicketDetailSection = ({
         placeholder="Penyakit Bawaan"
         value={value.disease}
         onChange={handleField("disease")}
+        error={errors.disease}
       >
         <RequiredLabel>Penyakit Bawaan</RequiredLabel>
       </UiFormGroup>
 
-      <UiFormGroup
+      <UiPhoneField
         id={`ticket-${index}-emergency-contact`}
         placeholder="Kontak Darurat"
         value={value.emergencyContact}
         onChange={handleField("emergencyContact")}
+        error={errors.emergencyContact}
       >
         <RequiredLabel>Kontak Darurat</RequiredLabel>
-      </UiFormGroup>
+      </UiPhoneField>
 
       <UiToggleGroup
         id={`ticket-${index}-shirt-size`}
@@ -255,6 +253,7 @@ const TicketDetailSection = ({
         value={value.shirtSize}
         onChange={(v) => onChange?.({ ...value, shirtSize: v })}
         fullWidth
+        error={errors.shirtSize}
       >
         <RequiredLabel>Ukuran Baju</RequiredLabel>
       </UiToggleGroup>
@@ -264,6 +263,7 @@ const TicketDetailSection = ({
         placeholder="Nama BIB"
         value={value.bibName}
         onChange={handleField("bibName")}
+        error={errors.bibName}
       >
         <RequiredLabel>Nama BIB</RequiredLabel>
       </UiFormGroup>
