@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Typography, Button, IconButton } from "@mui/material";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import EventCard from "../../dashboard/components/EventCard";
@@ -105,6 +105,26 @@ const EventsListPage = () => {
                   }}
                 >
                   <Pencil size={14} />
+                </IconButton>
+
+                <IconButton
+                  onClick={() => navigate(`/admin/events/${ev.id}/profile`)}
+                  title="Lihat Profil Event"
+                  sx={{
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                    zIndex: 2,
+                    width: 30,
+                    height: 30,
+                    bgcolor: "#fff",
+                    border: "1px solid",
+                    borderColor: "border.main",
+                    boxShadow: "0 2px 6px rgba(0,0,0,.12)",
+                    "&:hover": { bgcolor: "primary.background" },
+                  }}
+                >
+                  <Eye size={14} />
                 </IconButton>
 
                 <EventCard

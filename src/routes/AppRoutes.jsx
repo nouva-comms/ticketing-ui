@@ -10,6 +10,8 @@ import EventsListPage from "../features/admin/pages/EventsListPage";
 import AdminEventDetailPage from "../features/admin/pages/EventDetailPage";
 import PaymentSuccessPage from "../features/tickets/pages/PaymentSuccessPage";
 import EventParticipantsPage from "../features/admin/pages/EventParticipantsPage";
+import EventProfilePage from "../features/admin/pages/EventProfilePage";
+import EventProfileEditPage from "../features/admin/pages/EventProfileEditPage";
 
 const AppRoutes = () => {
   return (
@@ -25,6 +27,8 @@ const AppRoutes = () => {
       <Route path="/tickets/:id" element={<TicketDetailPage />} />
       <Route path="/tickets/payment-success" element={<PaymentSuccessPage />} />
       <Route path="/admin/events/:id/participants" element={<EventParticipantsPage />} />
+      <Route path="/admin/events/:id/profile" element={<EventProfilePage />} />
+      <Route path="/admin/events/:id/profile/edit" element={<EventProfileEditPage />} />
     </Routes>
   );
 };
