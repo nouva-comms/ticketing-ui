@@ -1,0 +1,115 @@
+import { useMemo } from "react";
+import { Box, Typography, Divider, Button } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Clock } from "lucide-react";
+
+const genRefId = () => {
+  try {
+    return crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
+  } catch {
+    return (Date.now().toString(16) + Math.random().toString(16).slice(2))
+      .toUpperCase()
+      .slice(0, 16);
+  }
+};
+
+const PaymentPendingPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { buyer, items = [], total = 0 } = location.state || {};
+
+  const eventName = items[0]?.name;
+  const refId = useMemo(() => genRefId(), []);
+
+  // QR di-generate lewat layanan publik gratis (qrserver.com) — beneran bisa di-scan,
+  // tapi isinya cuma placeholder ref id karena belum ada payment gateway asli.
+  const qrData = encodeURIComponent(`NOUVA-PAY-${refId}`);
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${qrData}`;
+
+  const handleConfirm = () => {
+    navigate("/tickets/payment-success", { state: { buyer, items, total } });
+  };
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#F5F6FA",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        p: { xs: 0, sm: 3 },
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 400,
+          minHeight: { xs: "100vh", sm: "auto" },
+          bgcolor: "#fff",
+          borderRadius: { xs: 0, sm: 4 },
+          border: { xs: "none", sm: "1px solid" },
+          borderColor: "border.main",
+          boxShadow: { xs: "none", sm: "0 20px 50px -20px rgba(3,47,217,.25)" },
+          p: { xs: 3.5, sm: 4 },
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+          <Typography sx={{ fontWeight: 800, fontSize: 22, color: "primary.main" }}>
+            Menunggu Pembayaran
+          </Typography>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              bgcolor: "#F4D03F",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Clock size={22} color="#fff" />
+          </Box>
+        </Box>
+
+        <Typography sx={{ fontSize: 13, color: "text.secondary", textAlign: "center", lineHeight: 1.6, mb: 2.5 }}>
+          {eventName
+            ? `Pendaftaran kamu untuk "${eventName}" sudah kami terima.`
+            : "Pendaftaran kamu sudah kami terima."}
+        </Typography>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+          <Box
+            component="img"
+            src={qrUrl}
+            alt="QR Code pembayaran"
+            sx={{ width: 220, height: 220, borderRadius: 2 }}
+          />
+        </Box>
+
+        <Button
+          fullWidth
+          onClick={handleConfirm}
+          variant="contained"
+          sx={{
+            borderRadius: 100,
+            textTransform: "none",
+            py: 1.4,
+            fontWeight: 700,
+            bgcolor: "primary.main",
+            boxShadow: "none",
+            "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
+          }}
+        >
+          Konfirmasi Pembayaran
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
+export default PaymentPendingPage;

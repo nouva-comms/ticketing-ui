@@ -3,8 +3,8 @@ import UiStepper from "../../../components/ui/UiStepper";
 const STEPS = [
   { label: "Data Pemesan" },
   { label: "Detail Ticket" },
-  { label: "Metode Pembayaran" },
   { label: "Pembayaran" },
+  { label: "Selesai" },
 ];
 
 const TicketStepper = ({ activeStep }) => {

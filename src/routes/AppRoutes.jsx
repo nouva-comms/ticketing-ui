@@ -13,6 +13,7 @@ import KategoryDetailPage from "../features/admin/pages/KategoryDetailPage";
 import PaymentSuccessPage from "../features/tickets/pages/PaymentSuccessPage";
 import KategoryParticipantsPage from "../features/admin/pages/KategoryParticipantsPage";
 import { getEvents } from "../features/admin/utils/eventsStorage";
+import PaymentPendingPage from "../features/tickets/pages/PaymentPendingPage";
 
 const AdminEventRedirect = () => {
   const events = getEvents();
@@ -48,6 +49,7 @@ const AppRoutes = () => {
       <Route path="/tickets/create" element={<TicketCreatePage />} />
       <Route path="/tickets/:id" element={<TicketDetailPage />} />
       <Route path="/tickets/payment-success" element={<PaymentSuccessPage />} />
+      <Route path="/tickets/payment-pending" element={<PaymentPendingPage />} />
     </Routes>
   );
 };
