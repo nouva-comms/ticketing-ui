@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Box } from "@mui/material";
 import TicketStepper from "../components/TicketStepper";
@@ -7,6 +7,7 @@ import TicketForm from "../components/TicketForm";
 import TicketFooter from "../components/TicketFooter";
 import PaymentPendingCard from "../components/PaymentPendingCard";
 import UiSummaryCard from "../../../components/ui/UiSummaryCard";
+import { createQrisPayment } from "../utils/paymentApi";
 
 const ORDER_ITEMS = [{ name: "CHILD - TICKETS ARTJOG", qty: 1, price: 50000 }];
 
@@ -18,12 +19,32 @@ const TicketCreatePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [formState, setFormState] = useState(null);
   const formRef = useRef(null);
+  
+  const [qrisData, setQrisData] = useState(null);
+  const [qrisLoading, setQrisLoading] = useState(false);
+  const orderIdRef = useRef(null);
 
   const activeStep = parseInt(searchParams.get("step") || "0", 10);
   const isPaymentStep = activeStep === QR_STEP;
 
 
   const total = ORDER_ITEMS.reduce((sum, it) => sum + it.price * it.qty, 0);
+
+  useEffect(() => {
+    if (!isPaymentStep || qrisData) return;
+
+    const orderId = orderIdRef.current || `NOUVA-${Date.now()}`;
+    orderIdRef.current = orderId;
+
+    setQrisLoading(true);
+    createQrisPayment(orderId, total)
+      .then((data) => setQrisData(data))
+      .catch((err) => {
+        console.error(err);
+        // TODO: tampilkan pesan error ke user kalau gagal bikin transaksi
+      })
+      .finally(() => setQrisLoading(false));
+  }, [isPaymentStep, qrisData, total]);
 
   const handleContinue = () => {
     const isValid = formRef.current?.validateCurrentStep?.() ?? true;
@@ -65,7 +86,12 @@ const TicketCreatePage = () => {
         }}
       >
         {isPaymentStep ? (
-          <PaymentPendingCard eventName={ORDER_ITEMS[0]?.name} onConfirm={handleConfirmPayment} />
+          <PaymentPendingCard
+            eventName={ORDER_ITEMS[0]?.name}
+            qrisPayload={qrisData?.qrisPayload}
+            loading={qrisLoading}
+            onConfirm={handleConfirmPayment}
+          />
         ) : (
           <>
             <Box

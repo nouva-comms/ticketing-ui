@@ -1,57 +1,20 @@
-import { useMemo } from "react";
-import { Box, Typography, Divider, Button } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
+import { Box, Typography, Divider, Button, CircularProgress } from "@mui/material";
 import { Clock } from "lucide-react";
 
-const genRefId = () => {
-  try {
-    return crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
-  } catch {
-    return (Date.now().toString(16) + Math.random().toString(16).slice(2))
-      .toUpperCase()
-      .slice(0, 16);
-  }
-};
-
-const PaymentPendingPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { buyer, items = [], total = 0 } = location.state || {};
-
-  const eventName = items[0]?.name;
-  const refId = useMemo(() => genRefId(), []);
-
-  // QR di-generate lewat layanan publik gratis (qrserver.com) — beneran bisa di-scan,
-  // tapi isinya cuma placeholder ref id karena belum ada payment gateway asli.
-  const qrData = encodeURIComponent(`NOUVA-PAY-${refId}`);
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${qrData}`;
-
-  const handleConfirm = () => {
-    navigate("/tickets/payment-success", { state: { buyer, items, total } });
-  };
-
+const PaymentPendingCard = ({ eventName, qrisPayload, loading, onConfirm }) => {
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#F5F6FA",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        p: { xs: 0, sm: 3 },
-      }}
-    >
+    <Box sx={{ display: "flex", justifyContent: "center", py: { xs: 2, md: 5 } }}>
       <Box
         sx={{
           width: "100%",
           maxWidth: 400,
-          minHeight: { xs: "100vh", sm: "auto" },
           bgcolor: "#fff",
-          borderRadius: { xs: 0, sm: 4 },
-          border: { xs: "none", sm: "1px solid" },
+          borderRadius: 4,
+          border: "1px solid",
           borderColor: "border.main",
-          boxShadow: { xs: "none", sm: "0 20px 50px -20px rgba(3,47,217,.25)" },
-          p: { xs: 3.5, sm: 4 },
+          boxShadow: "0 20px 50px -20px rgba(3,47,217,.25)",
+          p: { xs: 3, sm: 4 },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
@@ -82,19 +45,25 @@ const PaymentPendingPage = () => {
 
         <Divider sx={{ mb: 3 }} />
 
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-          <Box
-            component="img"
-            src={qrUrl}
-            alt="QR Code pembayaran"
-            sx={{ width: 220, height: 220, borderRadius: 2 }}
-          />
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+          {loading || !qrisPayload ? (
+            <Box sx={{ width: 220, height: 220, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <CircularProgress size={28} />
+            </Box>
+          ) : (
+            <QRCodeSVG value={qrisPayload} size={220} />
+          )}
         </Box>
+
+        <Typography sx={{ fontSize: 11, color: "text.secondary", textAlign: "center", mb: 3 }}>
+          Scan pakai aplikasi e-wallet/mobile banking apa pun yang mendukung QRIS
+        </Typography>
 
         <Button
           fullWidth
-          onClick={handleConfirm}
+          onClick={onConfirm}
           variant="contained"
+          disabled={loading || !qrisPayload}
           sx={{
             borderRadius: 100,
             textTransform: "none",
@@ -112,4 +81,4 @@ const PaymentPendingPage = () => {
   );
 };
 
-export default PaymentPendingPage;
+export default PaymentPendingCard;
