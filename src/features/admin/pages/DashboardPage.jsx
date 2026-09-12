@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { Ticket, TicketCheck, TicketX, Wallet, BarChart3 } from "lucide-react";
 
@@ -7,26 +8,63 @@ import UiCardHeader from "../../../components/ui/UiCardHeader";
 import UiStatCard from "../../../components/ui/UiStatCard";
 import UiSummaryBox from "../../../components/ui/UiSummaryBox";
 import UiProgressBar from "../../../components/ui/UiProgressBar";
+import { getDashboardData } from "../../../services/dashboardApi";
 
 // CONTOH REFERENSI — silakan sesuaikan path import sesuai struktur folder final.
 
 const DashboardPage = () => {
-  const dashboardData = {
-    totalTickets: 1248,
-    remainingTickets: 406,
-    soldTickets: 842,
-    sales: 84200000,
-  };
+  const [dashboardData, setDashboardData] = useState(null);
+  const [ticketTypes, setTicketTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const ticketTypes = [
-    { id: 1, name: "5K", total: 500, sold: 342, remaining: 158 },
-    { id: 2, name: "10K", total: 400, sold: 286, remaining: 114 },
-    { id: 3, name: "VIP", total: 200, sold: 154, remaining: 46 },
-    { id: 4, name: "Family", total: 148, sold: 60, remaining: 88 },
-  ];
+  useEffect(() => {
+    getDashboardData()
+      .then((data) => {
+        setDashboardData({
+          totalTickets: data.summary.totalTicket,
+          remainingTickets: data.summary.remainingTicket,
+          soldTickets: data.summary.soldTicket,
+          sales: data.summary.totalSales,
+        });
+        setTicketTypes(
+          data.ticketSales.map((t) => ({
+            id: t.id,
+            name: t.title,
+            total: t.totalTickets,
+            sold: t.sold,
+            remaining: t.remaining,
+          }))
+        );
+      })
+      .catch(() => setError("Gagal memuat data dashboard."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  
 
   const formatRupiah = (value) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
+    );
+  }
+
+  if (error || !dashboardData) {
+    return (
+      <AdminLayout>
+        <Typography sx={{ textAlign: "center", py: 10, color: "text.secondary" }}>
+          {error || "Belum ada data."}
+        </Typography>
+      </AdminLayout>
+    );
+  }
 
   const soldPercentage = (dashboardData.soldTickets / dashboardData.totalTickets) * 100;
 
