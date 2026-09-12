@@ -1,19 +1,25 @@
-import { useState } from "react";
-import { Box, Typography, TextField, Button, InputAdornment } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Box, Typography, TextField, Button, InputAdornment, MenuItem, Checkbox, FormControlLabel, CircularProgress } from "@mui/material";
 import { ImagePlus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import DynamicPointsField from "../components/DynamicPointsField";
-import { saveCategory } from "../utils/categoriesStorage";
+import { createCategory, addCategoryTerm, addCategoryFacility } from "../../../services/categoryApi";
+import { getMyEvents } from "../../../services/eventAdminApi";
+import { getFacilities } from "../../../services/facilityApi";
 
 const CreateKategoryPage = () => {
   const navigate = useNavigate();
 
+  const [events, setEvents] = useState([]);
+  const [facilities, setFacilities] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
   const [form, setForm] = useState({
+    eventId: "",
     name: "",
-    date: "",
-    time: "",
-    location: "",
     description: "",
     quota: "",
     price: "",
@@ -21,7 +27,17 @@ const CreateKategoryPage = () => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [terms, setTerms] = useState([""]);
-  const [facilities, setFacilities] = useState([""]);
+  const [selectedFacilityIds, setSelectedFacilityIds] = useState([]);
+
+  useEffect(() => {
+    Promise.all([getMyEvents(), getFacilities()])
+      .then(([eventList, facilityList]) => {
+        setEvents(eventList);
+        setFacilities(facilityList);
+      })
+      .catch(() => setError("Gagal memuat daftar Event/Fasilitas."))
+      .finally(() => setLoadingOptions(false));
+  }, []);
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -39,10 +55,10 @@ const CreateKategoryPage = () => {
     setImagePreview(null);
   };
 
-  const formatDisplayDate = (isoDate) => {
-    if (!isoDate) return "";
-    const d = new Date(`${isoDate}T00:00:00`);
-    return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+  const toggleFacility = (facilityId) => {
+    setSelectedFacilityIds((prev) =>
+      prev.includes(facilityId) ? prev.filter((id) => id !== facilityId) : [...prev, facilityId]
+    );
   };
 
   const fileToBase64 = (file) =>
@@ -55,28 +71,34 @@ const CreateKategoryPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSubmitting(true);
 
-    const imageData = image ? await fileToBase64(image) : null;
+    try {
+      const imageData = image
+        ? await fileToBase64(image)
+        : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
-    const newCategory = {
-      id: Date.now(),
-      name: form.name,
-      date: formatDisplayDate(form.date),
-      dateISO: form.date,
-      time: form.time,
-      venue: form.location,
-      city: "",
-      description: form.description,
-      terms: terms.filter((t) => t.trim() !== ""),
-      facilities: facilities.filter((f) => f.trim() !== ""),
-      cats: [],
-      price: Number(form.price) || 0,
-      quota: Number(form.quota) || 0,
-      image: imageData,
-    };
+      const created = await createCategory({
+        eventId: form.eventId,
+        title: form.name,
+        description: form.description,
+        totalTickets: Number(form.quota) || 0,
+        price: Number(form.price) || 0,
+        base64: imageData,
+      });
 
-    saveCategory(newCategory);
-    navigate("/admin/kategory");
+      const cleanTerms = terms.filter((t) => t.trim() !== "");
+      await Promise.all(cleanTerms.map((t) => addCategoryTerm(created.ticketCategoryId, t)));
+      await Promise.all(
+        selectedFacilityIds.map((facilityId) => addCategoryFacility(created.ticketCategoryId, facilityId))
+      );
+
+      navigate("/admin/kategory");
+    } catch (err) {
+      setError(err.message || "Gagal menyimpan category.");
+      setSubmitting(false);
+    }
   };
 
   const fieldSx = {
@@ -84,6 +106,16 @@ const CreateKategoryPage = () => {
   };
 
   const labelSx = { fontSize: "12px", fontWeight: 500, color: "text.secondary", mb: 1 };
+
+  if (loadingOptions) {
+    return (
+      <AdminLayout>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -118,12 +150,42 @@ const CreateKategoryPage = () => {
             gap: 2.5,
           }}
         >
+          {error && (
+            <Typography sx={{ fontSize: 13, color: "#F44336" }}>{error}</Typography>
+          )}
+
+          <Box>
+            <Typography sx={labelSx}>Event</Typography>
+            {events.length === 0 ? (
+              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+                Kamu belum punya Event. Buat Event dulu lewat Swagger sebelum bisa bikin Category.
+              </Typography>
+            ) : (
+              <TextField
+                select
+                fullWidth
+                size="small"
+                required
+                value={form.eventId}
+                onChange={handleChange("eventId")}
+                sx={fieldSx}
+              >
+                {events.map((ev) => (
+                  <MenuItem key={ev.eventId} value={ev.eventId}>
+                    {ev.title}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+          </Box>
+
           <Box>
             <Typography sx={labelSx}>Nama Category</Typography>
             <TextField
               fullWidth
               size="small"
-              placeholder="Contoh: Nouva Sunset 10K"
+              required
+              placeholder="Contoh: 5K"
               value={form.name}
               onChange={handleChange("name")}
               sx={fieldSx}
@@ -198,45 +260,6 @@ const CreateKategoryPage = () => {
             )}
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <Box sx={{ flex: 1, minWidth: 180 }}>
-              <Typography sx={labelSx}>Tanggal Category</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="date"
-                value={form.date}
-                onChange={handleChange("date")}
-                sx={fieldSx}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-            <Box sx={{ flex: 1, minWidth: 140 }}>
-              <Typography sx={labelSx}>Jam Category</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="time"
-                value={form.time}
-                onChange={handleChange("time")}
-                sx={fieldSx}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-          </Box>
-
-          <Box>
-            <Typography sx={labelSx}>Lokasi Category</Typography>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder="Contoh: GBK Senayan, Jakarta"
-              value={form.location}
-              onChange={handleChange("location")}
-              sx={fieldSx}
-            />
-          </Box>
-
           <Box>
             <Typography sx={labelSx}>Deskripsi Category</Typography>
             <TextField
@@ -257,12 +280,30 @@ const CreateKategoryPage = () => {
             onChange={setTerms}
           />
 
-          <DynamicPointsField
-            label="Fasilitas Category"
-            placeholder="Fasilitas poin"
-            values={facilities}
-            onChange={setFacilities}
-          />
+          <Box>
+            <Typography sx={labelSx}>Fasilitas Category</Typography>
+            {facilities.length === 0 ? (
+              <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
+                Belum ada data Fasilitas. Tambahkan dulu lewat Swagger (POST /facility/create).
+              </Typography>
+            ) : (
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                {facilities.map((f) => (
+                  <FormControlLabel
+                    key={f.facilityId}
+                    control={
+                      <Checkbox
+                        checked={selectedFacilityIds.includes(f.facilityId)}
+                        onChange={() => toggleFacility(f.facilityId)}
+                        size="small"
+                      />
+                    }
+                    label={<Typography sx={{ fontSize: 13 }}>{f.name}</Typography>}
+                  />
+                ))}
+              </Box>
+            )}
+          </Box>
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Box sx={{ flex: 1, minWidth: 180 }}>
@@ -271,6 +312,7 @@ const CreateKategoryPage = () => {
                 fullWidth
                 size="small"
                 type="number"
+                required
                 placeholder="Contoh: 500"
                 value={form.quota}
                 onChange={handleChange("quota")}
@@ -283,6 +325,7 @@ const CreateKategoryPage = () => {
                 fullWidth
                 size="small"
                 type="number"
+                required
                 placeholder="0"
                 value={form.price}
                 onChange={handleChange("price")}
@@ -303,6 +346,7 @@ const CreateKategoryPage = () => {
             <Button
               type="submit"
               variant="contained"
+              disabled={submitting || events.length === 0}
               sx={{
                 textTransform: "none",
                 fontSize: "13px",
@@ -314,7 +358,7 @@ const CreateKategoryPage = () => {
                 "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
               }}
             >
-              Simpan Category
+              {submitting ? "Menyimpan..." : "Simpan Category"}
             </Button>
           </Box>
         </Box>

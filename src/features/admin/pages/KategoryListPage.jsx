@@ -1,14 +1,34 @@
-import { useState } from "react";
-import { Box, Typography, Button, IconButton } from "@mui/material";
-import { Plus, Pencil, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Box, Typography, Button, IconButton, CircularProgress } from "@mui/material";
+import { Plus, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import EventCard from "../../dashboard/components/EventCard";
-import { getCategories } from "../utils/categoriesStorage";
+import { getMyCategories } from "../../../services/categoryApi";
 
 const KategoryListPage = () => {
   const navigate = useNavigate();
-  const [categories] = useState(() => getCategories());
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getMyCategories()
+      .then((data) => {
+        const normalized = data.map((c) => ({
+          id: c.ticketCategoryId,
+          name: c.title,
+          image: c.base64,
+          price: Number(c.price),
+          date: c.event ? new Date(c.event.startDate).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }) : "",
+          venue: c.event?.location || "",
+          city: "",
+          cats: [],
+        }));
+        setCategories(normalized);
+      })
+      .catch(() => setCategories([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <AdminLayout>
@@ -58,7 +78,11 @@ const KategoryListPage = () => {
           </Button>
         </Box>
 
-        {categories.length === 0 ? (
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+            <CircularProgress />
+          </Box>
+        ) : categories.length === 0 ? (
           <Box
             sx={{
               textAlign: "center",
@@ -89,7 +113,7 @@ const KategoryListPage = () => {
               <Box key={ev.id} sx={{ position: "relative" }}>
                 <IconButton
                   onClick={() => navigate(`/admin/kategory/${ev.id}`)}
-                  title="Edit Event"
+                  title="Edit Category"
                   sx={{
                     position: "absolute",
                     top: 12,
