@@ -27,6 +27,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UiButtonIcon from "../../../components/ui/UiButtonIcon";
 import UiBaseIcon from "../../../components/ui/UiBaseIcon";
+import { logoutAdmin } from "../../../services/authApi";
 
 const SIDEBAR_WIDTH = 250;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
@@ -60,15 +61,8 @@ const Navbar = ({ sidebarOpen = true, onMobileMenuClick }) => {
 
   const handleLogout = () => {
     handleCloseProfile();
-
+    logoutAdmin();
     navigate("/");
-
-    /*
-     * Nanti implementasi logout:
-     *
-     * localStorage.removeItem("token");
-     * navigate("/login");
-     */
   };
 
   return (

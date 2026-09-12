@@ -3,9 +3,7 @@ import { Box, Typography, TextField, Button, InputAdornment, IconButton } from "
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import BurstIcon from "../../../components/layout/BurstIcon";
-
-const ADMIN_USERNAME = "Admin";
-const ADMIN_PASSWORD = "123456";
+import { loginAdmin } from "../../../services/authApi";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -14,13 +12,15 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      setError("");
+    setError("");
+
+    try {
+      await loginAdmin(username, password);
       navigate("/admin");
-    } else {
-      setError("Username atau password salah.");
+    } catch (err) {
+      setError("Email atau password salah.");
     }
   };
 
