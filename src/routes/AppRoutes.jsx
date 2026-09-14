@@ -15,6 +15,11 @@ import PaymentSuccessPage from "../features/tickets/pages/PaymentSuccessPage";
 import KategoryParticipantsPage from "../features/admin/pages/KategoryParticipantsPage";
 import { getEvents } from "../features/admin/utils/eventsStorage";
 import PaymentPendingPage from "../features/tickets/pages/PaymentPendingPage";
+import EventListPage from "../features/admin/pages/EventListPage";
+import CreateEventPage from "../features/admin/pages/CreateEventPage";
+import EventEditPage from "../features/admin/pages/EventEditPage";
+import EventGalleryPage from "../features/admin/pages/EventGalleryPage";
+import FacilityListPage from "../features/admin/pages/FacilityListPage";
 
 const AdminEventRedirect = () => {
   const events = getEvents();
@@ -39,6 +44,7 @@ const AppRoutes = () => {
       <Route path="/events/:id" element={<PublicEventDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin" element={<RequireAuth><AdminDashboardPage /></RequireAuth>} />
+      <Route path="/admin/facility" element={<RequireAuth><FacilityListPage /></RequireAuth>} />
 
       <Route path="/admin/events" element={<RequireAuth><AdminEventRedirect /></RequireAuth>} />
       {/* <Route path="/admin/events/create" element={<CreateKategoryPage />} /> */}
@@ -46,6 +52,10 @@ const AppRoutes = () => {
       <Route path="/admin/events/:id/profile/edit" element={<RequireAuth><EventProfileEditPage /></RequireAuth>} />
       <Route path="/admin/events/:id/participants" element={<RequireAuth><KategoryParticipantsPage /></RequireAuth>} />
       <Route path="/admin/events/:id" element={<RequireAuth><EventProfilePage /></RequireAuth>} />
+      <Route path="/admin/event" element={<RequireAuth><EventListPage /></RequireAuth>} />
+      <Route path="/admin/event/create" element={<RequireAuth><CreateEventPage /></RequireAuth>} />
+      <Route path="/admin/event/:id/edit" element={<RequireAuth><EventEditPage /></RequireAuth>} />
+      <Route path="/admin/event/:id/gallery" element={<RequireAuth><EventGalleryPage /></RequireAuth>} />
       
       <Route path="/admin/kategory" element={<RequireAuth><KategoryListPage /></RequireAuth>} />
       <Route path="/admin/kategory/create" element={<RequireAuth><CreateKategoryPage /></RequireAuth>} />

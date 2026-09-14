@@ -1,9 +1,8 @@
-import { useMemo, useState } from "react";
-import { Box, Typography, Button } from "@mui/material";
-import { ArrowLeft, Calendar, Clock, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { EVENTS } from "../data/events";
-import { getEventById as getAdminEventById } from "../../admin/utils/eventsStorage";
+import { getPublicCategoryDetail } from "../../../services/eventsApi";
 import EventTabs from "../components/EventTabs";
 
 const fmtIDR = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
@@ -38,14 +37,26 @@ const EventDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState(0);
+  const [category, setCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const event = useMemo(() => {
-    const dummy = EVENTS.find((e) => String(e.id) === String(id));
-    if (dummy) return dummy;
-    return getAdminEventById(id);
+  useEffect(() => {
+    getPublicCategoryDetail(id)
+      .then(setCategory)
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  if (!event) {
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (notFound || !category) {
     return (
       <Box
         sx={{
@@ -57,7 +68,7 @@ const EventDetailPage = () => {
           gap: 2,
         }}
       >
-        <Typography sx={{ fontWeight: 700 }}>Event tidak ditemukan</Typography>
+        <Typography sx={{ fontWeight: 700 }}>Kategori tidak ditemukan</Typography>
         <Button onClick={() => navigate("/")} sx={{ textTransform: "none" }}>
           ← Kembali ke beranda
         </Button>
@@ -66,20 +77,27 @@ const EventDetailPage = () => {
   }
 
   const handleRegisterClick = () => {
-    navigate("/tickets/create", { state: { eventId: event.id } });
+    navigate("/tickets/create", {
+      state: {
+        ticketCategoryId: category.id,
+        eventName: category.name,
+        categoryName: category.categoryName,
+        price: category.price,
+        dateRange: category.dateRange,
+        time: category.time,
+        venue: category.venue,
+      },
+    });
   };
 
   return (
-    <Box sx={{ height: "100vh", overflow: "hidden", bgcolor: "#EDEEF0", display: "flex", justifyContent: "center" }}>
-      {/* "Bingkai HP" — lebar dibatasi 430px, tinggi tetap, scroll terjadi DI DALAM frame ini */}
+    <Box sx={{ minHeight: "100vh", bgcolor: "#EDEEF0", display: "flex", justifyContent: "center" }}>
       <Box
         sx={{
           width: "100%",
           maxWidth: 430,
           bgcolor: "#fff",
-          height: "100vh",
-          overflowY: "auto",
-          scrollbarGutter: "stable",
+          minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
           boxShadow: { xs: "none", sm: "0 0 40px rgba(0,0,0,0.08)" },
@@ -88,8 +106,8 @@ const EventDetailPage = () => {
         <Box sx={{ position: "relative" }}>
           <Box
             component="img"
-            src={event.image || "/images/runEvent.jpg"}
-            alt={event.name}
+            src={category.image || "/images/runEvent.jpg"}
+            alt={category.name}
             sx={{ width: "100%", height: 220, objectFit: "cover", display: "block" }}
           />
           <Box
@@ -114,26 +132,19 @@ const EventDetailPage = () => {
         </Box>
 
         <Box sx={{ flex: 1, px: 2.5, pt: 3 }}>
-          <Typography sx={{ fontWeight: 800, fontSize: 22, mb: 2 }}>
-            {event.name}
+          <Typography sx={{ fontWeight: 800, fontSize: 22, mb: 0.5 }}>{category.name}</Typography>
+          <Typography sx={{ fontSize: 13, color: "primary.main", fontWeight: 700, mb: 2 }}>
+            Kategori {category.categoryName}
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.3, mb: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, color: "primary.main" }}>
               <Calendar size={17} />
-              <Typography sx={{ fontSize: 13.5, color: "text.primary" }}>{event.date}</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "text.primary" }}>{category.date}</Typography>
             </Box>
-            {event.time && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, color: "primary.main" }}>
-                <Clock size={17} />
-                <Typography sx={{ fontSize: 13.5, color: "text.primary" }}>{event.time}</Typography>
-              </Box>
-            )}
             <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.2, color: "primary.main" }}>
               <MapPin size={17} style={{ marginTop: 2, flexShrink: 0 }} />
-              <Typography sx={{ fontSize: 13.5, color: "text.primary" }}>
-                {[event.venue, event.city].filter(Boolean).join(", ")}
-              </Typography>
+              <Typography sx={{ fontSize: 13.5, color: "text.primary" }}>{category.venue}</Typography>
             </Box>
           </Box>
 
@@ -141,30 +152,19 @@ const EventDetailPage = () => {
 
           <Box sx={{ pt: 3 }}>
             {tab === 0 && (
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {(event.description || "Belum ada deskripsi untuk event ini.")
-                  .split("\n\n")
-                  .map((p, i) => (
-                    <Typography key={i} sx={{ fontSize: 13.5, lineHeight: 1.8, color: "text.secondary" }}>
-                      {p}
-                    </Typography>
-                  ))}
-              </Box>
+              <Typography sx={{ fontSize: 13.5, lineHeight: 1.8, color: "text.secondary" }}>
+                {category.description || "Belum ada deskripsi untuk kategori ini."}
+              </Typography>
             )}
             {tab === 1 && (
-              <BulletList
-                items={event.terms && event.terms.length ? event.terms : ["Belum ada syarat & ketentuan untuk event ini."]}
-              />
+              <BulletList items={category.terms.length ? category.terms : ["Belum ada syarat & ketentuan."]} />
             )}
             {tab === 2 && (
-              <BulletList
-                items={event.facilities && event.facilities.length ? event.facilities : ["Belum ada informasi fasilitas untuk event ini."]}
-              />
+              <BulletList items={category.facilities.length ? category.facilities : ["Belum ada informasi fasilitas."]} />
             )}
           </Box>
         </Box>
 
-        {/* Bar bawah sekarang sticky, ikut lebar frame (bukan fixed selebar layar) */}
         <Box
           sx={{
             position: "sticky",
@@ -180,7 +180,7 @@ const EventDetailPage = () => {
             justifyContent: "space-between",
           }}
         >
-          <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{fmtIDR(event.price)}</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: 18 }}>{fmtIDR(category.price)}</Typography>
           <Button
             onClick={handleRegisterClick}
             variant="contained"

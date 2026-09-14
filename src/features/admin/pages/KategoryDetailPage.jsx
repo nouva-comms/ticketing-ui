@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, TextField, Button, InputAdornment } from "@mui/material";
-import { ImagePlus, X, ArrowLeft } from "lucide-react";
+import { Box, Typography, TextField, Button, InputAdornment, MenuItem, Checkbox, FormControlLabel, CircularProgress } from "@mui/material";
+import { ImagePlus, X, ArrowLeft, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import DynamicPointsField from "../components/DynamicPointsField";
-import { getCategoryById, updateCategory } from "../utils/categoriesStorage";
+import {
+  getCategoryById,
+  updateCategoryDetails,
+  deleteCategory,
+  getCategoryTerms,
+  deleteCategoryTerm,
+  getCategoryFacilities,
+  deleteCategoryFacility,
+  addCategoryTerm,
+  addCategoryFacility,
+} from "../../../services/categoryApi";
+import { getMyEvents } from "../../../services/eventAdminApi";
+import { getFacilities } from "../../../services/facilityApi";
 
 const fileToBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -13,12 +25,6 @@ const fileToBase64 = (file) =>
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-
-const formatDisplayDate = (isoDate) => {
-  if (!isoDate) return "";
-  const d = new Date(`${isoDate}T00:00:00`);
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
-};
 
 const fieldSx = {
   "& .MuiOutlinedInput-root": { borderRadius: "8px", fontSize: "13px" },
@@ -29,45 +35,54 @@ const KategoryDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    date: "",
-    time: "",
-    location: "",
-    description: "",
-    quota: "",
-    price: "",
-  });
+  const [error, setError] = useState("");
+
+  const [events, setEvents] = useState([]);
+  const [facilities, setFacilities] = useState([]);
+  const [existingTermIds, setExistingTermIds] = useState([]);
+  const [existingFacilityLinkIds, setExistingFacilityLinkIds] = useState([]);
+
+  const [form, setForm] = useState({ eventId: "", name: "", description: "", quota: "", price: "" });
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [terms, setTerms] = useState([""]);
-  const [facilities, setFacilities] = useState([""]);
+  const [selectedFacilityIds, setSelectedFacilityIds] = useState([]);
 
   useEffect(() => {
-    const ev = getCategoryById(id);
-    if (!ev) {
-      setNotFound(true);
-      return;
-    }
+    Promise.all([
+      getCategoryById(id),
+      getMyEvents(),
+      getFacilities(),
+      getCategoryTerms(id),
+      getCategoryFacilities(id),
+    ])
+      .then(([category, eventList, facilityList, termsData, facilityLinks]) => {
+        setEvents(eventList);
+        setFacilities(facilityList);
 
-    setForm({
-      name: ev.name || "",
-      date: ev.dateISO || "",
-      time: ev.time || "",
-      location: ev.venue || "",
-      description: ev.description || "",
-      quota: ev.quota ?? "",
-      price: ev.price ?? "",
-    });
-    setImagePreview(ev.image || null);
-    setTerms(ev.terms && ev.terms.length ? [...ev.terms, ""] : [""]);
-    setFacilities(ev.facilities && ev.facilities.length ? [...ev.facilities, ""] : [""]);
+        setForm({
+          eventId: category.eventId,
+          name: category.title,
+          description: category.description,
+          quota: category.totalTickets,
+          price: category.price,
+        });
+        setImagePreview(category.base64 || null);
+
+        setTerms(termsData.length ? [...termsData.map((t) => t.description), ""] : [""]);
+        setExistingTermIds(termsData.map((t) => t.catTermsConditionId));
+
+        setSelectedFacilityIds(facilityLinks.map((f) => f.facilityId));
+        setExistingFacilityLinkIds(facilityLinks.map((f) => f.categoryFacilityId));
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  const handleChange = (field) => (e) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -81,27 +96,64 @@ const KategoryDetailPage = () => {
     setImagePreview(null);
   };
 
+  const toggleFacility = (facilityId) => {
+    setSelectedFacilityIds((prev) =>
+      prev.includes(facilityId) ? prev.filter((fid) => fid !== facilityId) : [...prev, facilityId]
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSubmitting(true);
 
-    const imageData = image ? await fileToBase64(image) : imagePreview;
+    try {
+      const imageData = image ? await fileToBase64(image) : imagePreview;
 
-    updateCategory(id, {
-      name: form.name,
-      date: formatDisplayDate(form.date),
-      dateISO: form.date,
-      time: form.time,
-      venue: form.location,
-      description: form.description,
-      terms: terms.filter((t) => t.trim() !== ""),
-      facilities: facilities.filter((f) => f.trim() !== ""),
-      price: Number(form.price) || 0,
-      quota: Number(form.quota) || 0,
-      image: imageData,
-    });
+      await updateCategoryDetails(id, {
+        eventId: form.eventId,
+        title: form.name,
+        description: form.description,
+        totalTickets: Number(form.quota) || 0,
+        price: Number(form.price) || 0,
+        base64: imageData,
+      });
 
-    navigate("/admin/kategory");
+      // Syarat & Ketentuan: hapus semua yang lama, buat ulang dari form sekarang
+      await Promise.all(existingTermIds.map((termId) => deleteCategoryTerm(termId)));
+      const cleanTerms = terms.filter((t) => t.trim() !== "");
+      await Promise.all(cleanTerms.map((t) => addCategoryTerm(id, t)));
+
+      // Fasilitas: hapus semua link lama, buat ulang dari checklist sekarang
+      await Promise.all(existingFacilityLinkIds.map((linkId) => deleteCategoryFacility(linkId)));
+      await Promise.all(selectedFacilityIds.map((facilityId) => addCategoryFacility(id, facilityId)));
+
+      navigate("/admin/kategory");
+    } catch (err) {
+      setError(err.message || "Gagal menyimpan perubahan.");
+      setSubmitting(false);
+    }
   };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Yakin ingin menghapus category ini? Tindakan ini tidak bisa dibatalkan.")) return;
+    try {
+      await deleteCategory(id);
+      navigate("/admin/kategory");
+    } catch (err) {
+      setError(err.message || "Gagal menghapus category. Mungkin sudah ada peserta terdaftar di category ini.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+          <CircularProgress />
+        </Box>
+      </AdminLayout>
+    );
+  }
 
   if (notFound) {
     return (
@@ -120,10 +172,7 @@ const KategoryDetailPage = () => {
           <Typography sx={{ fontWeight: 700, color: "text.primary", mb: 0.5 }}>
             Kategori tidak ditemukan
           </Typography>
-          <Button
-            onClick={() => navigate("/admin/kategory")}
-            sx={{ textTransform: "none", mt: 1.5 }}
-          >
+          <Button onClick={() => navigate("/admin/kategory")} sx={{ textTransform: "none", mt: 1.5 }}>
             ← Kembali ke Semua Kategori
           </Button>
         </Box>
@@ -151,14 +200,7 @@ const KategoryDetailPage = () => {
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Typography
-            sx={{
-              fontSize: { xs: "22px", sm: "24px", md: "26px" },
-              fontWeight: 700,
-              lineHeight: 1.2,
-              color: "text.primary",
-            }}
-          >
+          <Typography sx={{ fontSize: { xs: "22px", sm: "24px", md: "26px" }, fontWeight: 700, lineHeight: 1.2 }}>
             Detail Kategori
           </Typography>
           <Typography sx={{ mt: 0.6, fontSize: { xs: "11px", sm: "12px" }, color: "text.secondary" }}>
@@ -181,15 +223,22 @@ const KategoryDetailPage = () => {
             width: "100%",
           }}
         >
+          {error && <Typography sx={{ fontSize: 13, color: "#F44336" }}>{error}</Typography>}
+
+          <Box>
+            <Typography sx={labelSx}>Event</Typography>
+            <TextField select fullWidth size="small" required value={form.eventId} onChange={handleChange("eventId")} sx={fieldSx}>
+              {events.map((ev) => (
+                <MenuItem key={ev.eventId} value={ev.eventId}>
+                  {ev.title}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+
           <Box>
             <Typography sx={labelSx}>Nama Kategori</Typography>
-            <TextField
-              fullWidth
-              size="small"
-              value={form.name}
-              onChange={handleChange("name")}
-              sx={fieldSx}
-            />
+            <TextField fullWidth size="small" value={form.name} onChange={handleChange("name")} sx={fieldSx} />
           </Box>
 
           <Box>
@@ -261,54 +310,9 @@ const KategoryDetailPage = () => {
             )}
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <Box sx={{ flex: 1, minWidth: 180 }}>
-              <Typography sx={labelSx}>Tanggal Kategori</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="date"
-                value={form.date}
-                onChange={handleChange("date")}
-                sx={fieldSx}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-            <Box sx={{ flex: 1, minWidth: 140 }}>
-              <Typography sx={labelSx}>Jam Kategori</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="time"
-                value={form.time}
-                onChange={handleChange("time")}
-                sx={fieldSx}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-          </Box>
-
-          <Box>
-            <Typography sx={labelSx}>Lokasi Kategori</Typography>
-            <TextField
-              fullWidth
-              size="small"
-              value={form.location}
-              onChange={handleChange("location")}
-              sx={fieldSx}
-            />
-          </Box>
-
           <Box>
             <Typography sx={labelSx}>Deskripsi Kategori</Typography>
-            <TextField
-              fullWidth
-              multiline
-              minRows={4}
-              value={form.description}
-              onChange={handleChange("description")}
-              sx={fieldSx}
-            />
+            <TextField fullWidth multiline minRows={4} value={form.description} onChange={handleChange("description")} sx={fieldSx} />
           </Box>
 
           <DynamicPointsField
@@ -318,24 +322,29 @@ const KategoryDetailPage = () => {
             onChange={setTerms}
           />
 
-          <DynamicPointsField
-            label="Fasilitas Kategori"
-            placeholder="Fasilitas poin"
-            values={facilities}
-            onChange={setFacilities}
-          />
+          <Box>
+            <Typography sx={labelSx}>Fasilitas Kategori</Typography>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              {facilities.map((f) => (
+                <FormControlLabel
+                  key={f.facilityId}
+                  control={
+                    <Checkbox
+                      checked={selectedFacilityIds.includes(f.facilityId)}
+                      onChange={() => toggleFacility(f.facilityId)}
+                      size="small"
+                    />
+                  }
+                  label={<Typography sx={{ fontSize: 13 }}>{f.name}</Typography>}
+                />
+              ))}
+            </Box>
+          </Box>
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Box sx={{ flex: 1, minWidth: 180 }}>
               <Typography sx={labelSx}>Jumlah Tiket yang Tersedia</Typography>
-              <TextField
-                fullWidth
-                size="small"
-                type="number"
-                value={form.quota}
-                onChange={handleChange("quota")}
-                sx={fieldSx}
-              />
+              <TextField fullWidth size="small" type="number" value={form.quota} onChange={handleChange("quota")} sx={fieldSx} />
             </Box>
             <Box sx={{ flex: 1, minWidth: 180 }}>
               <Typography sx={labelSx}>Harga Tiket</Typography>
@@ -351,30 +360,29 @@ const KategoryDetailPage = () => {
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 1.5, justifyContent: "flex-end", pt: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", pt: 1 }}>
             <Button
               type="button"
-              onClick={() => navigate("/admin/kategory")}
-              sx={{ textTransform: "none", color: "text.secondary", fontSize: "13px" }}
+              onClick={handleDelete}
+              startIcon={<Trash2 size={15} />}
+              sx={{ textTransform: "none", color: "#F44336", fontSize: "13px" }}
             >
-              Kembali
+              Hapus Category
             </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                fontSize: "13px",
-                fontWeight: 700,
-                borderRadius: "8px",
-                px: 3,
-                bgcolor: "primary.main",
-                boxShadow: "none",
-                "&:hover": { bgcolor: "#021F8F", boxShadow: "none" },
-              }}
-            >
-              Simpan Perubahan
-            </Button>
+
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              <Button type="button" onClick={() => navigate("/admin/kategory")} sx={{ textTransform: "none", color: "text.secondary", fontSize: "13px" }}>
+                Kembali
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={submitting}
+                sx={{ textTransform: "none", fontSize: "13px", fontWeight: 700, borderRadius: "8px", px: 3, bgcolor: "primary.main", boxShadow: "none", "&:hover": { bgcolor: "#021F8F", boxShadow: "none" } }}
+              >
+                {submitting ? "Menyimpan..." : "Simpan Perubahan"}
+              </Button>
+            </Box>
           </Box>
         </Box>
       </Box>

@@ -1,26 +1,40 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import EventFilterBar from "./EventFilterBar";
 import EventCard from "./EventCard";
 import PageContainer from "../../../components/layout/PageContainer";
-import { EVENTS, CATEGORIES } from "../data/events";
+import { getPublicEvents } from "../../../services/eventsApi";
 
 const PAGE_SIZE = 6;
 
 const EventsSection = ({ onRegister }) => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeCat, setActiveCat] = useState("Semua");
   const [city, setCity] = useState("Semua Kota");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-  const cities = useMemo(() => [...new Set(EVENTS.map((e) => e.city))], []);
+  useEffect(() => {
+    getPublicEvents()
+      .then(setEvents)
+      .catch((err) => console.error("Gagal memuat event:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const cities = useMemo(() => [...new Set(events.map((e) => e.city).filter(Boolean))], [events]);
+
+  const categoryOptions = useMemo(
+    () => ["Semua", ...new Set(events.flatMap((e) => e.cats))],
+    [events]
+  );
 
   const filtered = useMemo(() => {
-    return EVENTS.filter((e) => {
+    return events.filter((e) => {
       const matchCat = activeCat === "Semua" || e.cats.includes(activeCat);
       const matchCity = city === "Semua Kota" || e.city === city;
       return matchCat && matchCity;
     });
-  }, [activeCat, city]);
+  }, [events, activeCat, city]);
 
   return (
     <Box id="events" sx={{ py: { xs: 6, md: 10 } }}>
@@ -56,7 +70,7 @@ const EventsSection = ({ onRegister }) => {
       >
         <PageContainer>
           <EventFilterBar
-            categories={CATEGORIES}
+            categories={categoryOptions}
             active={activeCat}
             onChange={(cat) => {
               setActiveCat(cat);
@@ -74,6 +88,11 @@ const EventsSection = ({ onRegister }) => {
       </Box>
 
       <PageContainer>
+        {loading && (
+          <Typography sx={{ textAlign: "center", py: 6, color: "text.secondary" }}>
+            Memuat event...
+          </Typography>
+        )}
         <Box
           sx={{
             display: "grid",

@@ -1,8 +1,8 @@
-import { useState, useImperativeHandle, forwardRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useImperativeHandle, forwardRef, useEffect } from "react";
 import { Box } from "@mui/material";
 import TicketBuyerForm from "./TicketBuyerForm";
 import TicketDetailSection from "./TicketDetailSection";
+import { getGenders, getSizes } from "../../../services/lookupApi";
 
 const emptyBuyer = {
   name: "",
@@ -25,9 +25,10 @@ const emptyTicket = {
   city: "",
   province: "",
   disease: "",
+  bloodType: "",
   emergencyContact: "",
   shirtSize: "",
-  bibName:""
+  bibName: "",
 };
 
 const TicketForm = forwardRef(({
@@ -38,6 +39,17 @@ const TicketForm = forwardRef(({
   const [buyer, setBuyer] = useState(emptyBuyer);
   const [buyerErrors, setBuyerErrors] = useState({});
   const [ticketErrors, setTicketErrors] = useState([]);
+  const [genderOptions, setGenderOptions] = useState([]);
+  const [sizeOptions, setSizeOptions] = useState([]);
+
+  useEffect(() => {
+    getGenders()
+      .then((data) => setGenderOptions(data.map((g) => ({ value: String(g.genderId), label: g.name }))))
+      .catch(() => setGenderOptions([]));
+    getSizes()
+      .then((data) => setSizeOptions(data.map((s) => ({ value: String(s.sizeId), label: s.name }))))
+      .catch(() => setSizeOptions([]));
+  }, []);
 
   const ticketSlots = items.flatMap((item, itemIndex) =>
     Array.from({ length: item.qty }, (_, i) => ({
@@ -57,7 +69,7 @@ const TicketForm = forwardRef(({
     if (!buyer.identityNumber?.trim()) errors.identityNumber = "Nomor identitas wajib diisi";
     if (!buyer.email?.trim()) errors.email = "Email wajib diisi";
     if (!buyer.whatsapp?.trim()) errors.whatsapp = "No. WhatsApp wajib diisi";
-    
+
     setBuyerErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -70,6 +82,7 @@ const TicketForm = forwardRef(({
       if (!ticket.address?.trim()) ticketError.address = "Alamat wajib diisi";
       if (!ticket.city?.trim()) ticketError.city = "Kota wajib diisi";
       if (!ticket.province?.trim()) ticketError.province = "Provinsi wajib diisi";
+      if (!ticket.bloodType?.trim()) ticketError.bloodType = "Golongan darah wajib diisi";
       if (!ticket.disease?.trim()) ticketError.disease = "Penyakit bawaan wajib diisi";
       if (!ticket.emergencyContact?.trim()) ticketError.emergencyContact = "Kontak darurat wajib diisi";
       if (!ticket.shirtSize?.trim()) ticketError.shirtSize = "Ukuran baju wajib diisi";
@@ -77,9 +90,9 @@ const TicketForm = forwardRef(({
 
       return ticketError;
     });
-    
+
     setTicketErrors(errors);
-    return errors.every(err => Object.keys(err).length === 0);
+    return errors.every((err) => Object.keys(err).length === 0);
   };
 
   const validateCurrentStep = () => {
@@ -96,6 +109,7 @@ const TicketForm = forwardRef(({
   }));
 
   const updateBuyer = (next) => {
+    console.log("updateBuyer dipanggil:", next);
     setBuyer(next);
     onStateChange?.({ buyer: next, tickets });
   };
@@ -109,8 +123,8 @@ const TicketForm = forwardRef(({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {activeStep === 0 && (
-        <TicketBuyerForm 
-          value={buyer} 
+        <TicketBuyerForm
+          value={buyer}
           onChange={updateBuyer}
           errors={buyerErrors}
         />
@@ -121,12 +135,13 @@ const TicketForm = forwardRef(({
           {ticketSlots.map((slot, i) => (
             <TicketDetailSection
               key={slot.key}
-              index={i + 1} 
+              index={i + 1}
               categoryLabel={slot.label}
               value={tickets[i]}
               onChange={(next) => updateTicket(i, next)}
-              buyerData={buyer}
               errors={ticketErrors[i] || {}}
+              genderOptions={genderOptions}
+              sizeOptions={sizeOptions}
             />
           ))}
         </>

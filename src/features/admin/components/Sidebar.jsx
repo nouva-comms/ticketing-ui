@@ -40,6 +40,7 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
 
   // Semua menu tertutup ketika pertama kali halaman dibuka.
   const [openMenus, setOpenMenus] = useState({
+      event: false,
       tiket: false,
       laporan: false,
     });
@@ -66,7 +67,16 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
       setOpenMenus((prev) => ({ ...prev, tiket: true }));
     } else if (location.pathname.startsWith("/admin/events")) {
       setActiveMenu("event");
-    }
+    } else if (location.pathname === "/admin/event/create") {
+      setActiveMenu("buat-event");
+      setOpenMenus((prev) => ({ ...prev, event: true }));
+    } else if (location.pathname.startsWith("/admin/event")) {
+      setActiveMenu("semua-event");
+      setOpenMenus((prev) => ({ ...prev, event: true }));
+    } else if (location.pathname === "/admin/facility") {
+      setActiveMenu("fasilitas");
+      setOpenMenus((prev) => ({ ...prev, tiket: true }));}
+
   }, [location.pathname]);
 
   /*
@@ -88,8 +98,11 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
       id: "event",
       label: "Event",
       icon: <CalendarDays size={18} />,
-      type: "single",
-      path: "/admin/events/kavaya-run-2026/profile",
+      type: "group",
+      children: [
+      { id: "semua-event", label: "Semua Event", path: "/admin/event" },
+      { id: "buat-event", label: "Buat Event", icon: <Plus size={15} />, path: "/admin/event/create" },
+  ],
     },
 
     {
@@ -109,6 +122,11 @@ const Sidebar = ({ open = true, mobileOpen = false, onToggle, onClose }) => {
           icon: <Plus size={15} />,
           path: "/admin/kategory/create",
         },
+        { 
+          id: "fasilitas", 
+          label: "Fasilitas", 
+          path: "/admin/facility"
+       },
       ],
     },
 

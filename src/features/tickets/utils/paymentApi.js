@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://rlhhz9pp-5700.asse.devtunnels.ms/api"; // sesuaikan kalau backend sudah pindah host
+const API_BASE_URL = "http://localhost:5700";
 
 export const createQrisPayment = async (orderId, amount) => {
   const response = await fetch(`${API_BASE_URL}/payments/create`, {
