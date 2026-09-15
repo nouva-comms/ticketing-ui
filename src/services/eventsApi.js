@@ -1,5 +1,5 @@
 import { fetchApi } from "./fetchWithNgrokBypass";
-const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
+const API_BASE_URL = "https://episode-dosage-unmovable.ngrok-free.dev";
 
 const computeStatus = (startDate) => (new Date(startDate) > new Date() ? "COMMING SOON" : "OPEN");
 
