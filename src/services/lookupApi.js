@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const getGenders = async () => {
   const res = await fetch(`${API_BASE_URL}/gender/all`);

@@ -1,6 +1,6 @@
 import { authHeader } from "./authApi";
 
-const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const getMyEvents = async () => {
   const response = await fetch(`${API_BASE_URL}/event/all`, {
