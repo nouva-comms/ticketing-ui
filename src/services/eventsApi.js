@@ -1,3 +1,4 @@
+import { fetchApi } from "./fetchWithNgrokBypass";
 const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 const computeStatus = (startDate) => (new Date(startDate) > new Date() ? "COMMING SOON" : "OPEN");
@@ -20,13 +21,13 @@ const normalizeCard = (event, category) => ({
 });
 
 export const getPublicEvents = async () => {
-  const eventsRes = await fetch(`${API_BASE_URL}/event/all`);
+  const eventsRes = await fetchApi(`${API_BASE_URL}/event/all`);
   if (!eventsRes.ok) throw new Error("Gagal memuat daftar event");
   const events = await eventsRes.json();
 
   const nested = await Promise.all(
     events.map(async (ev) => {
-      const catRes = await fetch(`${API_BASE_URL}/ticket-category/by-eventid?eventId=${ev.eventId}`);
+      const catRes = await fetchApi(`${API_BASE_URL}/ticket-category/by-eventid?eventId=${ev.eventId}`);
       const categories = catRes.ok ? await catRes.json() : [];
       return categories.map((cat) => normalizeCard(ev, cat));
     })
@@ -37,9 +38,9 @@ export const getPublicEvents = async () => {
 
 export const getPublicCategoryDetail = async (ticketCategoryId) => {
   const [catRes, termsRes, facilitiesRes] = await Promise.all([
-    fetch(`${API_BASE_URL}/ticket-category/${ticketCategoryId}`),
-    fetch(`${API_BASE_URL}/category-terms-condition/by-ticket-category?ticketCategoryId=${ticketCategoryId}`),
-    fetch(`${API_BASE_URL}/category-facility/by-ticket-category?ticketCategoryId=${ticketCategoryId}`),
+    fetchApi(`${API_BASE_URL}/ticket-category/${ticketCategoryId}`),
+    fetchApi(`${API_BASE_URL}/category-terms-condition/by-ticket-category?ticketCategoryId=${ticketCategoryId}`),
+    fetchApi(`${API_BASE_URL}/category-facility/by-ticket-category?ticketCategoryId=${ticketCategoryId}`),
   ]);
 
   if (!catRes.ok) throw new Error("Kategori tidak ditemukan");

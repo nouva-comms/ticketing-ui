@@ -1,9 +1,10 @@
 import { authHeader } from "./authApi";
+import { fetchApi } from "./fetchWithNgrokBypass";
 
 const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const getMyEvents = async () => {
-  const response = await fetch(`${API_BASE_URL}/event/all`, {
+  const response = await fetchApi(`${API_BASE_URL}/event/all`, {
     headers: { ...authHeader() },
   });
   if (!response.ok) throw new Error("Gagal mengambil data event");
@@ -11,7 +12,7 @@ export const getMyEvents = async () => {
 };
 
 export const getEventById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/event/get/${id}`, {
+  const response = await fetchApi(`${API_BASE_URL}/event/get/${id}`, {
     headers: { ...authHeader() },
   });
   if (!response.ok) throw new Error("Gagal mengambil detail event");
@@ -19,7 +20,7 @@ export const getEventById = async (id) => {
 };
 
 export const createEvent = async (dto) => {
-  const response = await fetch(`${API_BASE_URL}/event/create`, {
+  const response = await fetchApi(`${API_BASE_URL}/event/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify(dto),
@@ -29,7 +30,7 @@ export const createEvent = async (dto) => {
 };
 
 export const updateEvent = async (id, dto) => {
-  const response = await fetch(`${API_BASE_URL}/event/update/${id}`, {
+  const response = await fetchApi(`${API_BASE_URL}/event/update/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify(dto),
@@ -39,7 +40,7 @@ export const updateEvent = async (id, dto) => {
 };
 
 export const deleteEvent = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/event/delete/${id}`, {
+  const response = await fetchApi(`${API_BASE_URL}/event/delete/${id}`, {
     method: "DELETE",
     headers: { ...authHeader() },
   });

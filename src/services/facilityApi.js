@@ -1,9 +1,10 @@
 import { authHeader } from "./authApi";
+import { fetchApi } from "./fetchWithNgrokBypass";
 
 const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const getFacilities = async () => {
-  const response = await fetch(`${API_BASE_URL}/facility/all`, {
+  const response = await fetchApi(`${API_BASE_URL}/facility/all`, {
     headers: { ...authHeader() },
   });
   if (!response.ok) throw new Error("Gagal mengambil data fasilitas");
@@ -19,7 +20,7 @@ export const createFacility = async (name) => {
       .replace(/[^A-Z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-  const response = await fetch(`${API_BASE_URL}/facility/create`, {
+  const response = await fetchApi(`${API_BASE_URL}/facility/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeader() },
     body: JSON.stringify({ facilityId, name }),
@@ -33,7 +34,7 @@ export const createFacility = async (name) => {
 };
 
 export const deleteFacility = async (facilityId) => {
-  const response = await fetch(`${API_BASE_URL}/facility/delete/${facilityId}`, {
+  const response = await fetchApi(`${API_BASE_URL}/facility/delete/${facilityId}`, {
     method: "DELETE",
     headers: { ...authHeader() },
   });

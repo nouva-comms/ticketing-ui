@@ -1,9 +1,10 @@
+import { fetchApi } from "./fetchWithNgrokBypass";
 const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev"; // sesuaikan ke alamat backend kamu
 
 const TOKEN_KEY = "nouva_admin_token";
 
 export const loginAdmin = async (email, password) => {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  const response = await fetchApi(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

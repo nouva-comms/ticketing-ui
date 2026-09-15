@@ -1,4 +1,5 @@
 import { authHeader } from "./authApi";
+import { fetchApi } from "./fetchWithNgrokBypass";
 
 const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
@@ -8,7 +9,7 @@ const jsonHeaders = () => ({
 });
 
 export const getEventImages = async (eventId) => {
-  const response = await fetch(`${API_BASE_URL}/event-information-image/by-eventid?eventId=${eventId}`, {
+  const response = await fetchApi(`${API_BASE_URL}/event-information-image/by-eventid?eventId=${eventId}`, {
     headers: { ...authHeader() },
   });
   if (!response.ok) throw new Error("Gagal mengambil galeri foto");
@@ -16,7 +17,7 @@ export const getEventImages = async (eventId) => {
 };
 
 export const addEventImage = async (dto) => {
-  const response = await fetch(`${API_BASE_URL}/event-information-image`, {
+  const response = await fetchApi(`${API_BASE_URL}/event-information-image`, {
     method: "POST",
     headers: jsonHeaders(),
     body: JSON.stringify(dto),
@@ -26,7 +27,7 @@ export const addEventImage = async (dto) => {
 };
 
 export const deleteEventImage = async (eventInfoImageId) => {
-  const response = await fetch(`${API_BASE_URL}/event-information-image/delete/${eventInfoImageId}`, {
+  const response = await fetchApi(`${API_BASE_URL}/event-information-image/delete/${eventInfoImageId}`, {
     method: "DELETE",
     headers: { ...authHeader() },
   });

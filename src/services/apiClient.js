@@ -2,7 +2,7 @@
  * API Client Configuration
  * Base configuration untuk semua HTTP requests
  */
-
+import { fetchApi } from "./fetchWithNgrokBypass";
 const API_BASE_URL = "https://rlhhz9pp-5700.asse.devtunnels.ms/api";
 
 /**
@@ -66,7 +66,7 @@ const handleError = (error, response) => {
 export const apiGet = async (endpoint, options = {}) => {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
+    const response = await fetchApi(url, {
       method: "GET",
       headers: buildHeaders(options.headers),
       ...options,
@@ -89,7 +89,7 @@ export const apiGet = async (endpoint, options = {}) => {
 export const apiPost = async (endpoint, data = {}, options = {}) => {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
+    const response = await fetchApi(url, {
       method: "POST",
       headers: buildHeaders(options.headers),
       body: JSON.stringify(data),
@@ -113,7 +113,7 @@ export const apiPost = async (endpoint, data = {}, options = {}) => {
 export const apiPut = async (endpoint, data = {}, options = {}) => {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
+    const response = await fetchApi(url, {
       method: "PUT",
       headers: buildHeaders(options.headers),
       body: JSON.stringify(data),
@@ -137,7 +137,7 @@ export const apiPut = async (endpoint, data = {}, options = {}) => {
 export const apiDelete = async (endpoint, options = {}) => {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
+    const response = await fetchApi(url, {
       method: "DELETE",
       headers: buildHeaders(options.headers),
       ...options,
@@ -160,7 +160,7 @@ export const apiDelete = async (endpoint, options = {}) => {
 export const apiPatch = async (endpoint, data = {}, options = {}) => {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
+    const response = await fetchApi(url, {
       method: "PATCH",
       headers: buildHeaders(options.headers),
       body: JSON.stringify(data),

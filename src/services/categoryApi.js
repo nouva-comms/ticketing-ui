@@ -1,4 +1,5 @@
 import { authHeader } from "./authApi";
+import { fetchApi } from "./fetchWithNgrokBypass";
 
 const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
@@ -8,7 +9,7 @@ const jsonHeaders = () => ({
 });
 
 export const getMyCategories = async () => {
-  const response = await fetch(`${API_BASE_URL}/ticket-category`, {
+  const response = await fetchApi(`${API_BASE_URL}/ticket-category`, {
     headers: { ...authHeader() },
   });
   if (!response.ok) throw new Error("Gagal mengambil data category");
@@ -16,7 +17,7 @@ export const getMyCategories = async () => {
 };
 
 export const createCategory = async (dto) => {
-  const response = await fetch(`${API_BASE_URL}/ticket-category/create`, {
+  const response = await fetchApi(`${API_BASE_URL}/ticket-category/create`, {
     method: "POST",
     headers: jsonHeaders(),
     body: JSON.stringify(dto),
@@ -26,7 +27,7 @@ export const createCategory = async (dto) => {
 };
 
 export const addCategoryTerm = async (ticketCategoryId, description) => {
-  const response = await fetch(`${API_BASE_URL}/category-terms-condition/create`, {
+  const response = await fetchApi(`${API_BASE_URL}/category-terms-condition/create`, {
     method: "POST",
     headers: jsonHeaders(),
     body: JSON.stringify({ ticketCategoryId, description }),
@@ -36,7 +37,7 @@ export const addCategoryTerm = async (ticketCategoryId, description) => {
 };
 
 export const addCategoryFacility = async (ticketCategoryId, facilityId) => {
-  const response = await fetch(`${API_BASE_URL}/category-facility/create`, {
+  const response = await fetchApi(`${API_BASE_URL}/category-facility/create`, {
     method: "POST",
     headers: jsonHeaders(),
     body: JSON.stringify({ ticketCategoryId, facilityId }),
@@ -46,7 +47,7 @@ export const addCategoryFacility = async (ticketCategoryId, facilityId) => {
 };
 
 export const getCategoryById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/ticket-category/${id}`, {
+  const response = await fetchApi(`${API_BASE_URL}/ticket-category/${id}`, {
     headers: { ...authHeader() },
   });
   if (!response.ok) throw new Error("Gagal mengambil detail category");
@@ -54,7 +55,7 @@ export const getCategoryById = async (id) => {
 };
 
 export const updateCategoryDetails = async (id, dto) => {
-  const response = await fetch(`${API_BASE_URL}/ticket-category/${id}`, {
+  const response = await fetchApi(`${API_BASE_URL}/ticket-category/${id}`, {
     method: "PATCH",
     headers: jsonHeaders(),
     body: JSON.stringify(dto),
@@ -64,7 +65,7 @@ export const updateCategoryDetails = async (id, dto) => {
 };
 
 export const deleteCategory = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/ticket-category/${id}`, {
+  const response = await fetchApi(`${API_BASE_URL}/ticket-category/${id}`, {
     method: "DELETE",
     headers: { ...authHeader() },
   });
@@ -72,7 +73,7 @@ export const deleteCategory = async (id) => {
 };
 
 export const getCategoryTerms = async (ticketCategoryId) => {
-  const response = await fetch(
+  const response = await fetchApi(
     `${API_BASE_URL}/category-terms-condition/by-ticket-category?ticketCategoryId=${ticketCategoryId}`,
     { headers: { ...authHeader() } }
   );
@@ -81,14 +82,14 @@ export const getCategoryTerms = async (ticketCategoryId) => {
 };
 
 export const deleteCategoryTerm = async (catTermsConditionId) => {
-  await fetch(`${API_BASE_URL}/category-terms-condition/delete/${catTermsConditionId}`, {
+  await fetchApi(`${API_BASE_URL}/category-terms-condition/delete/${catTermsConditionId}`, {
     method: "DELETE",
     headers: { ...authHeader() },
   });
 };
 
 export const getCategoryFacilities = async (ticketCategoryId) => {
-  const response = await fetch(
+  const response = await fetchApi(
     `${API_BASE_URL}/category-facility/by-ticket-category?ticketCategoryId=${ticketCategoryId}`,
     { headers: { ...authHeader() } }
   );
@@ -97,7 +98,7 @@ export const getCategoryFacilities = async (ticketCategoryId) => {
 };
 
 export const deleteCategoryFacility = async (categoryFacilityId) => {
-  await fetch(`${API_BASE_URL}/category-facility/delete/${categoryFacilityId}`, {
+  await fetchApi(`${API_BASE_URL}/category-facility/delete/${categoryFacilityId}`, {
     method: "DELETE",
     headers: { ...authHeader() },
   });

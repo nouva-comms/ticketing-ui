@@ -1,7 +1,8 @@
+import { fetchApi } from "./fetchWithNgrokBypass";
 const API_BASE_URL = "http://localhost:5700";
 
 export const submitRegistration = async (payload) => {
-  const res = await fetch(`${API_BASE_URL}/participant/create`, {
+  const res = await fetchApi(`${API_BASE_URL}/participant/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
