@@ -1,5 +1,5 @@
 import { fetchApi } from "./fetchWithNgrokBypass";
-const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const submitRegistration = async (payload) => {
   const res = await fetchApi(`${API_BASE_URL}/participant/create`, {

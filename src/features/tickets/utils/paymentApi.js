@@ -1,5 +1,5 @@
 import { fetchApi } from "../../../services/fetchWithNgrokBypass";
-const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const createQrisPayment = async (orderId, amount) => {
   const response = await fetchApi(`${API_BASE_URL}/payments/create`, {
