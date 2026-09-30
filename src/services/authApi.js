@@ -1,5 +1,7 @@
 import { fetchApi } from "./fetchWithNgrokBypass";
-const API_BASE_URL = "https://episode-dosage-unmovable.ngrok-free.dev"; // sesuaikan ke alamat backend kamu
+// const API_BASE_URL = "https://episode-dosage-unmovable.ngrok-free.dev"; // sesuaikan ke alamat backend kamu
+// const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 const TOKEN_KEY = "nouva_admin_token";
 

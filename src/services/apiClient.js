@@ -3,7 +3,9 @@
  * Base configuration untuk semua HTTP requests
  */
 import { fetchApi } from "./fetchWithNgrokBypass";
-const API_BASE_URL = "https://rlhhz9pp-5700.asse.devtunnels.ms/api";
+// const API_BASE_URL = "https://rlhhz9pp-5700.asse.devtunnels.ms/api";
+// const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 /**
  * Request headers default

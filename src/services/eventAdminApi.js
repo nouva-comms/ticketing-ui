@@ -1,7 +1,9 @@
 import { authHeader } from "./authApi";
 import { fetchApi } from "./fetchWithNgrokBypass";
 
-const API_BASE_URL = "https://episode-dosage-unmovable.ngrok-free.dev";
+// const API_BASE_URL = "https://episode-dosage-unmovable.ngrok-free.dev";
+// const API_BASE_URL = "http://localhost:5700";
+const API_BASE_URL = "https://satchel-hatchling-cardiac.ngrok-free.dev";
 
 export const getMyEvents = async () => {
   const response = await fetchApi(`${API_BASE_URL}/event/all`, {
